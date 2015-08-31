@@ -14,12 +14,27 @@ class NGram(object):
         self.counts = counts = defaultdict(int)
 
         for sent in sents:
+            if self.n != 1:
+                sent = ['<s>'] + sent
+            sent.append('</s>')
             for i in range(len(sent) - n + 1):
                 ngram = tuple(sent[i: i + n])
                 counts[ngram] += 1
                 counts[ngram[:-1]] += 1
 
-    def prob(self, token, prev_tokens=None):
+
+    def count(self, tokens):
+        """Count for an n-gram or (n-1)-gram.
+        tokens -- the n-gram or (n-1)-gram tuple.
+        """
+        return self.counts[tokens]
+
+
+    def cond_prob(self, token, prev_tokens=None):
+        """Conditional probability of a token.
+        token -- the token.
+        prev_tokens -- the previous n-1 tokens (optional only if n = 1).
+        """
         n = self.n
         if not prev_tokens:
             prev_tokens = []
@@ -27,3 +42,21 @@ class NGram(object):
 
         tokens = prev_tokens + [token]
         return float(self.counts[tuple(tokens)]) / self.counts[tuple(prev_tokens)]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
