@@ -43,9 +43,28 @@ class NGram(object):
         tokens = prev_tokens + [token]
         return float(self.counts[tuple(tokens)]) / self.counts[tuple(prev_tokens)]
 
-
-
-
+    def sent_prob(self, sent):
+        """Probability of a sentence. Warning: subject to underflow problems.
+        sent -- the sentence as a list of tokens.
+        """
+        n = self.n
+        prob_sent = 1
+        sent.append('</s>') # agrego el fin de oracion a la sentencia
+        if n == 1: # unigramas
+            for token in sent:
+                prob_sent *= self.cond_prob(token)
+                if prob_sent == 0: # si es cero termino
+                    break
+        else: # n-gramas
+            prev_token = ['<s>']
+            for token in sent: 
+                prob_sent *= self.cond_prob(token, prev_token)
+                prev_token.append(token)
+                if len(prev_token) == n: # tengo que sacar un token de los previos
+                    prev_token = prev_token[1:]
+                if prob_sent == 0: # si es cero termino
+                    break
+        return prob_sent
 
 
 
