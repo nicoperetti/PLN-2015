@@ -58,35 +58,23 @@ class NGram(object):
                 break
         return prob_sent
 
-#    def sent_log_prob(self, sent):
-#        """Log-probability of a sentence.
-# 
-#        sent -- the sentence as a list of tokens.
-#        """
-#        n = self.n
-#        prob_sent = 1
-#        sent.append('</s>') # agrego el fin de oracion a la sentencia
-#        prev_token = ['<s>'] * (n-1) # agrego los principios de oracion
-#        for token in sent: 
-#            prob_sent *= log(self.cond_prob(token, prev_token), 2)
-#            prev_token.append(token)
-#            prev_token = prev_token[1:]
-#            if prob_sent == 0: # si es cero termino
-#                prob_sent = float("-inf")
-#                break
-#        return prob_sent
-
-#        prob = self.sent_prob(sent)
-#        if prob == 0:
-#            p = float("-inf")
-#        else:
-#            p = prob
-#        return p
-
-
-
-
-
-
+    def sent_log_prob(self, sent):
+        """Log-probability of a sentence.
+ 
+        sent -- the sentence as a list of tokens.
+        """
+        n = self.n
+        prob_log_sent = 0
+        sent.append('</s>') # agrego el fin de oracion a la sentencia
+        prev_token = ['<s>'] * (n-1) # agrego los principios de oracion
+        for token in sent:
+            p = self.cond_prob(token, prev_token)
+            if p == 0: # si es cero termino
+                prob_log_sent = float("-inf")
+                break
+            prob_log_sent += log(p, 2)
+            prev_token.append(token)
+            prev_token = prev_token[1:]
+        return prob_log_sent
 
 
