@@ -1,6 +1,6 @@
 # https://docs.python.org/3/library/collections.html
 from collections import defaultdict
-
+from math import log
 
 class NGram(object):
 
@@ -14,8 +14,7 @@ class NGram(object):
         self.counts = counts = defaultdict(int)
 
         for sent in sents:
-            if self.n != 1:
-                sent = ['<s>'] + sent
+            sent = (['<s>'] *(n-1)) + sent # agrego n-1 tags de inicio de oracion
             sent.append('</s>')
             for i in range(len(sent) - n + 1):
                 ngram = tuple(sent[i: i + n])
@@ -50,27 +49,39 @@ class NGram(object):
         n = self.n
         prob_sent = 1
         sent.append('</s>') # agrego el fin de oracion a la sentencia
-        if n == 1: # unigramas
-            for token in sent:
-                prob_sent *= self.cond_prob(token)
-                if prob_sent == 0: # si es cero termino
-                    break
-        else: # n-gramas
-            prev_token = ['<s>']
-            for token in sent: 
-                prob_sent *= self.cond_prob(token, prev_token)
-                prev_token.append(token)
-                if len(prev_token) == n: # tengo que sacar un token de los previos
-                    prev_token = prev_token[1:]
-                if prob_sent == 0: # si es cero termino
-                    break
+        prev_token = ['<s>'] * (n-1) # agrego los principios de oracion
+        for token in sent: 
+            prob_sent *= self.cond_prob(token, prev_token)
+            prev_token.append(token)
+            prev_token = prev_token[1:]
+            if prob_sent == 0: # si es cero termino
+                break
         return prob_sent
 
+#    def sent_log_prob(self, sent):
+#        """Log-probability of a sentence.
+# 
+#        sent -- the sentence as a list of tokens.
+#        """
+#        n = self.n
+#        prob_sent = 1
+#        sent.append('</s>') # agrego el fin de oracion a la sentencia
+#        prev_token = ['<s>'] * (n-1) # agrego los principios de oracion
+#        for token in sent: 
+#            prob_sent *= log(self.cond_prob(token, prev_token), 2)
+#            prev_token.append(token)
+#            prev_token = prev_token[1:]
+#            if prob_sent == 0: # si es cero termino
+#                prob_sent = float("-inf")
+#                break
+#        return prob_sent
 
-
-
-
-
+#        prob = self.sent_prob(sent)
+#        if prob == 0:
+#            p = float("-inf")
+#        else:
+#            p = prob
+#        return p
 
 
 
