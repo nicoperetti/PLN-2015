@@ -1,6 +1,8 @@
 # https://docs.python.org/3/library/collections.html
 from collections import defaultdict
 from math import log
+from operator import itemgetter
+from random import random
 
 class NGram(object):
 
@@ -20,7 +22,6 @@ class NGram(object):
                 ngram = tuple(sent[i: i + n])
                 counts[ngram] += 1
                 counts[ngram[:-1]] += 1
-
 
     def count(self, tokens):
         """Count for an n-gram or (n-1)-gram.
@@ -60,7 +61,6 @@ class NGram(object):
 
     def sent_log_prob(self, sent):
         """Log-probability of a sentence.
- 
         sent -- the sentence as a list of tokens.
         """
         n = self.n
@@ -77,4 +77,64 @@ class NGram(object):
             prev_token = prev_token[1:]
         return prob_log_sent
 
+#    def sent_log_prob(self, sent):
+#        a = self.sent_prob(sent)
+#        if a != 0:
+#            return log(a,2)
+#        else:
+#            return float('-inf')
+
+class NGramGenerator:
+
+    def __init__(self, model):
+        """
+        model -- n-gram model.
+        """
+        self.n = model.n
+        self.counts = model.counts
+        self.probs = defaultdict(dict)
+        self.sorted_probs = defaultdict(dict)
+
+        for i,k in self.counts.items():
+            if len(i) == self.n:
+                token = i[-1:][0]
+                prev_token = i[:-1]
+                p = model.cond_prob(token, list(prev_token))
+                self.probs[prev_token][token] = p
+
+        for i,k in self.probs.items():
+            asd = []
+            final = []
+            for j in k.items():
+                l = list(j)
+                l[1] *= -1
+                l = tuple(l)
+                asd.append(l)
+
+            m = sorted(asd, key=itemgetter(1,0))
+            for j in m:
+                l = list(j)
+                l[1] *= -1
+                l = tuple(l)
+                final.append(l)
+
+            self.sorted_probs[i] = final
+
+    def generate_sent(self):
+        """Randomly generate a sentence."""
+
+
+    def generate_token(self, prev_tokens=None):
+        """Randomly generate a token, given prev_tokens.
+        prev_tokens -- the previous n-1 tokens (optional only if n = 1).
+        """
+        tokens_list = self.sorted_probs[prev_tokens]
+        u = random()
+        prob = 0
+        for i in range(len(tokens_list)):
+            prob += tokens_list[i][1]
+            if u <= prob:
+                token = tokens_list[i][0]
+                break
+        return token
 
