@@ -1,7 +1,6 @@
 # https://docs.python.org/3/library/collections.html
 from collections import defaultdict
 from math import log
-from operator import itemgetter
 from random import random
 
 class NGram(object):
@@ -84,7 +83,7 @@ class NGram(object):
 #        else:
 #            return float('-inf')
 
-class NGramGenerator:
+class NGramGenerator(object):
 
     def __init__(self, model):
         """
@@ -103,26 +102,8 @@ class NGramGenerator:
                 self.probs[prev_token][token] = p
 
         for i,k in self.probs.items():
-            asd = []
-            final = []
-            for j in k.items():
-                l = list(j)
-                l[1] *= -1
-                l = tuple(l)
-                asd.append(l)
-
-            m = sorted(asd, key=itemgetter(1,0))
-            for j in m:
-                l = list(j)
-                l[1] *= -1
-                l = tuple(l)
-                final.append(l)
-
-            self.sorted_probs[i] = final
-
-    def generate_sent(self):
-        """Randomly generate a sentence."""
-
+            m = sorted(k.items(), key =lambda asd: (-asd[1], asd[0]))
+            self.sorted_probs[i] = m
 
     def generate_token(self, prev_tokens=None):
         """Randomly generate a token, given prev_tokens.
@@ -135,6 +116,18 @@ class NGramGenerator:
             prob += tokens_list[i][1]
             if u <= prob:
                 token = tokens_list[i][0]
-                break
-        return token
+                return token
+
+    def generate_sent(self):
+        """Randomly generate a sentence."""
+        sent = []
+        tok = ''
+        prev_token = ['<s>'] * (self.n -1)
+        while sent == [] or tok != '</s>':
+            tok = self.generate_token(tuple(prev_token))
+            sent.append(tok)
+            prev_token.append(tok)
+            prev_token = prev_token[1:]
+        return sent[:-1]
+
 
