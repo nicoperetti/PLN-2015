@@ -140,6 +140,30 @@ class AddOneNGram(object):
         dem = float(self.count(tuple(prev_tokens)) + self.V())
         return nom / dem
 
+
+class InterpolatedNGram(object):
+ 
+    def __init__(self, n, sents, gamma=None, addone=True):
+        """
+        n -- order of the model.
+        sents -- list of sentences, each one being a list of tokens.
+        gamma -- interpolation hyper-parameter (if not given, estimate using
+            held-out data).
+        addone -- whether to use addone smoothing (default: True).
+        """
+
+    def count(self, tokens):
+        """Count for an k-gram for k <= n.
+        tokens -- the k-gram tuple.
+        """
+
+    def cond_prob(self, token, prev_tokens=None):
+        """Conditional probability of a token.
+        token -- the token.
+        prev_tokens -- the previous n-1 tokens (optional only if n = 1).
+        """
+
+
 class NGramGenerator(object):
 
     def __init__(self, model):
