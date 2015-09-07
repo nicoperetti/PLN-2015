@@ -26,7 +26,8 @@ class NGram(object):
         """Count for an n-gram or (n-1)-gram.
         tokens -- the n-gram or (n-1)-gram tuple.
         """
-        return self.counts[tokens]
+        c = self.counts.copy()
+        return c[tokens]
 
 
     def cond_prob(self, token, prev_tokens=None):
@@ -40,7 +41,7 @@ class NGram(object):
         assert len(prev_tokens) == n - 1
 
         tokens = prev_tokens + [token]
-        return float(self.counts[tuple(tokens)]) / self.counts[tuple(prev_tokens)]
+        return float(self.count(tuple(tokens))) / self.count(tuple(prev_tokens))
 
     def sent_prob(self, sent):
         """Probability of a sentence. Warning: subject to underflow problems.
@@ -82,6 +83,62 @@ class NGram(object):
 #            return log(a,2)
 #        else:
 #            return float('-inf')
+
+class AddOneNGram(object):
+ 
+    def __init__(self, n, sents):
+        """
+        n -- order of the model.
+        sents -- list of sentences, each one being a list of tokens.
+        """
+        assert n > 0
+        self.n = n
+        self.counts = counts = defaultdict(int)
+
+        for sent in sents:
+            sent = (['<s>'] *(n-1)) + sent # agrego n-1 tags de inicio de oracion
+            sent.append('</s>')
+            for i in range(len(sent) - n + 1):
+                ngram = tuple(sent[i: i + n])
+                counts[ngram] += 1
+                counts[ngram[:-1]] += 1
+
+    def count(self, tokens):
+        """Count for an n-gram or (n-1)-gram.
+ 
+        tokens -- the n-gram or (n-1)-gram tuple.
+        """
+# se utiliza ya que en una cosulta de un token unk lo agraga a counts(copy)
+        c = self.counts.copy()
+        return c[tokens]
+
+    def V(self):
+        """Size of the vocabulary.
+        """
+        v = []
+        for gram, c in self.counts.items():
+            if len(gram) == self.n:
+                for i in gram:
+                    v.append(i)
+        v = list(set(v))
+        if '<s>' in v:
+            v.remove('<s>')
+        return len(v)
+
+    def cond_prob(self, token, prev_tokens=None):
+        """Conditional probability of a token.
+        token -- the token.
+        prev_tokens -- the previous n-1 tokens (optional only if n = 1).
+        """
+        n = self.n
+        if not prev_tokens:
+            prev_tokens = []
+        assert len(prev_tokens) == n - 1
+
+        tokens = prev_tokens + [token]
+        nom = self.count(tuple(tokens)) + 1.0
+        dem = float(self.count(tuple(prev_tokens)) + self.V())
+        return nom / dem
 
 class NGramGenerator(object):
 
