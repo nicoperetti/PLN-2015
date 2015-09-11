@@ -26,8 +26,7 @@ class NGram(object):
         """Count for an n-gram or (n-1)-gram.
         tokens -- the n-gram or (n-1)-gram tuple.
         """
-        c = self.counts.copy()
-        return c[tokens]
+        return self.counts[tokens]
 
 
     def cond_prob(self, token, prev_tokens=None):
@@ -103,27 +102,37 @@ class AddOneNGram(object):
                 counts[ngram] += 1
                 counts[ngram[:-1]] += 1
 
+        v_list = []
+        for gram, c in self.counts.items():
+            if len(gram) == self.n:
+                for i in gram:
+                    v_list.append(i)
+        v_list = list(set(v_list))
+        if '<s>' in v_list:
+            v_list.remove('<s>')
+        self.v = len(v_list)
+
     def count(self, tokens):
         """Count for an n-gram or (n-1)-gram.
  
         tokens -- the n-gram or (n-1)-gram tuple.
         """
 # se utiliza ya que en una cosulta de un token unk lo agraga a counts(copy)
-        c = self.counts.copy()
-        return c[tokens]
+        return self.counts[tokens]
 
     def V(self):
         """Size of the vocabulary.
         """
-        v = []
-        for gram, c in self.counts.items():
-            if len(gram) == self.n:
-                for i in gram:
-                    v.append(i)
-        v = list(set(v))
-        if '<s>' in v:
-            v.remove('<s>')
-        return len(v)
+#        v = []
+#        for gram, c in self.counts.items():
+#            if len(gram) == self.n:
+#                for i in gram:
+#                    v.append(i)
+#        v = list(set(v))
+#        if '<s>' in v:
+#            v.remove('<s>')
+#        return len(v)
+        return self.v
 
     def cond_prob(self, token, prev_tokens=None):
         """Conditional probability of a token.
@@ -174,7 +183,6 @@ class NGramGenerator(object):
         self.counts = model.counts
         self.probs = defaultdict(dict)
         self.sorted_probs = defaultdict(dict)
-
         for i,k in self.counts.items():
             if len(i) == self.n:
                 token = i[-1:][0]
@@ -185,6 +193,7 @@ class NGramGenerator(object):
         for i,k in self.probs.items():
             m = sorted(k.items(), key =lambda asd: (-asd[1], asd[0]))
             self.sorted_probs[i] = m
+        print(self.sorted_probs)
 
     def generate_token(self, prev_tokens=None):
         """Randomly generate a token, given prev_tokens.
