@@ -82,25 +82,31 @@ class NGram(object):
 #            return log(a,2)
 #        else:
 #            return float('-inf')
+    def cross_entropy(self, M, sents):
+        """M -- total number of words in the test corpus.
+        sents -- the sentences as a list of tokens.
+        """
+        l = 0.0
+        for sent in sents:
+            l += self.sent_log_prob(sent)
+        return l/M
 
-class AddOneNGram(object):
- 
+    def perplexity(self, M, sents):
+        """M -- total number of words in the test corpus.
+        sents -- the sentences as a list of tokens.
+        """
+        l = self.cross_entropy(M, sents)
+        return 2**(-l)
+
+class AddOneNGram(NGram):
+
     def __init__(self, n, sents):
         """
         n -- order of the model.
         sents -- list of sentences, each one being a list of tokens.
         """
-        assert n > 0
-        self.n = n
-        self.counts = counts = defaultdict(int)
 
-        for sent in sents:
-            sent = (['<s>'] *(n-1)) + sent # agrego n-1 tags de inicio de oracion
-            sent.append('</s>')
-            for i in range(len(sent) - n + 1):
-                ngram = tuple(sent[i: i + n])
-                counts[ngram] += 1
-                counts[ngram[:-1]] += 1
+        super(AddOneNGram, self).__init__(n, sents) # heredo de la clase NGram
 
         v_list = []
         for gram, c in self.counts.items():
@@ -112,27 +118,12 @@ class AddOneNGram(object):
             v_list.remove('<s>')
         self.v = len(v_list)
 
-    def count(self, tokens):
-        """Count for an n-gram or (n-1)-gram.
- 
-        tokens -- the n-gram or (n-1)-gram tuple.
-        """
-# se utiliza ya que en una cosulta de un token unk lo agraga a counts(copy)
-        return self.counts[tokens]
 
     def V(self):
         """Size of the vocabulary.
         """
-#        v = []
-#        for gram, c in self.counts.items():
-#            if len(gram) == self.n:
-#                for i in gram:
-#                    v.append(i)
-#        v = list(set(v))
-#        if '<s>' in v:
-#            v.remove('<s>')
-#        return len(v)
         return self.v
+
 
     def cond_prob(self, token, prev_tokens=None):
         """Conditional probability of a token.
@@ -150,8 +141,8 @@ class AddOneNGram(object):
         return nom / dem
 
 
-class InterpolatedNGram(object):
- 
+class InterpolatedNGram(NGram):
+
     def __init__(self, n, sents, gamma=None, addone=True):
         """
         n -- order of the model.
@@ -160,17 +151,17 @@ class InterpolatedNGram(object):
             held-out data).
         addone -- whether to use addone smoothing (default: True).
         """
+        super(InterpolatedNGram, self).__init__(n, sents) # heredo de la clase NGram
+#    def count(self, tokens):
+#        """Count for an k-gram for k <= n.
+#        tokens -- the k-gram tuple.
+#        """
 
-    def count(self, tokens):
-        """Count for an k-gram for k <= n.
-        tokens -- the k-gram tuple.
-        """
-
-    def cond_prob(self, token, prev_tokens=None):
-        """Conditional probability of a token.
-        token -- the token.
-        prev_tokens -- the previous n-1 tokens (optional only if n = 1).
-        """
+#    def cond_prob(self, token, prev_tokens=None):
+#        """Conditional probability of a token.
+#        token -- the token.
+#        prev_tokens -- the previous n-1 tokens (optional only if n = 1).
+#        """
 
 
 class NGramGenerator(object):
@@ -193,7 +184,6 @@ class NGramGenerator(object):
         for i,k in self.probs.items():
             m = sorted(k.items(), key =lambda asd: (-asd[1], asd[0]))
             self.sorted_probs[i] = m
-        print(self.sorted_probs)
 
     def generate_token(self, prev_tokens=None):
         """Randomly generate a token, given prev_tokens.
