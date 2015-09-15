@@ -152,17 +152,68 @@ class InterpolatedNGram(NGram):
         addone -- whether to use addone smoothing (default: True).
         """
         super(InterpolatedNGram, self).__init__(n, sents) # heredo de la clase NGram
-#    def count(self, tokens):
-#        """Count for an k-gram for k <= n.
-#        tokens -- the k-gram tuple.
-#        """
 
-#    def cond_prob(self, token, prev_tokens=None):
-#        """Conditional probability of a token.
-#        token -- the token.
-#        prev_tokens -- the previous n-1 tokens (optional only if n = 1).
-#        """
+        self.addone = addone
+        self.gamma = gamma
+        self.counts = counts = defaultdict(int)
+        for sent in sents:
+            sent = (['<s>'] *(n-1)) + sent # agrego n-1 tags de inicio de oracion
+            sent.append('</s>')
+            n1 = n
+            for _ in range(n):
+                for i in range(len(sent) - n1 + 1):
+                    ngram = tuple(sent[i: i + n1])
+                    counts[ngram] += 1
+                    if n1 == 1 and ngram != ('<s>',): # excluyo el <s> para que no me sume muchas veces el ().
+                        counts[ngram[:-1]] += 1 # ngram = ().
+                n1 -= 1
 
+
+    def cond_prob_ML(self, token, prev_tokens=None):
+        """Conditional probability of a token.
+        token -- the token.
+        prev_tokens -- the previous n-1 tokens (optional only if n = 1).
+        """
+        n = self.n
+        if not prev_tokens:
+            prev_tokens = []
+
+        tokens = prev_tokens + [token]
+        if float(self.count(tuple(tokens))) == 0.0:
+            p = 0.0
+        else:
+            p = float(self.count(tuple(tokens))) / self.count(tuple(prev_tokens))
+        return p
+
+    def lamb(self, prev_tokens):
+        """ calculate a lambda
+        """
+        prev_tokens = tuple(prev_tokens)
+        return self.count(prev_tokens) / (self.count(prev_tokens) + self.gamma)
+
+    def cond_prob(self, token, prev_tokens=None):
+        """Conditional probability of a token.
+        token -- the token.
+        prev_tokens -- the previous n-1 tokens (optional only if n = 1).
+        """
+#        if self.addone:
+#            
+#        else:
+        p = 0.0
+        l = 1.0
+        if self.n > 1:
+            l = self.lamb(prev_tokens)
+        p += l * self.cond_prob_ML(token, prev_tokens)
+        v = 1 - l
+        for m in range(self.n - 1):
+            prev_tokens = prev_tokens[1:]
+            if (m + 1) == (self.n - 1): # ultimo lambda
+                l = v
+            else:
+                l = v * self.lamb(prev_tokens)
+            p += l * self.cond_prob_ML(token, prev_tokens)
+            v = v -l
+        return p
 
 class NGramGenerator(object):
 
