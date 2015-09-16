@@ -98,6 +98,54 @@ class NGram(object):
         l = self.cross_entropy(M, sents)
         return 2**(-l)
 
+
+class NGramGenerator(object):
+
+    def __init__(self, model):
+        """
+        model -- n-gram model.
+        """
+        self.n = model.n
+        self.counts = model.counts
+        self.probs = defaultdict(dict)
+        self.sorted_probs = defaultdict(dict)
+        for i,k in self.counts.items():
+            if len(i) == self.n:
+                token = i[-1:][0]
+                prev_token = i[:-1]
+                p = model.cond_prob(token, list(prev_token))
+                self.probs[prev_token][token] = p
+
+        for i,k in self.probs.items():
+            m = sorted(k.items(), key =lambda asd: (-asd[1], asd[0]))
+            self.sorted_probs[i] = m
+
+    def generate_token(self, prev_tokens=None):
+        """Randomly generate a token, given prev_tokens.
+        prev_tokens -- the previous n-1 tokens (optional only if n = 1).
+        """
+        tokens_list = self.sorted_probs[prev_tokens]
+        u = random()
+        prob = 0
+        for i in range(len(tokens_list)):
+            prob += tokens_list[i][1]
+            if u <= prob:
+                token = tokens_list[i][0]
+                return token
+
+    def generate_sent(self):
+        """Randomly generate a sentence."""
+        sent = []
+        tok = ''
+        prev_token = ['<s>'] * (self.n -1)
+        while sent == [] or tok != '</s>':
+            tok = self.generate_token(tuple(prev_token))
+            sent.append(tok)
+            prev_token.append(tok)
+            prev_token = prev_token[1:]
+        return sent[:-1]
+
+
 class AddOneNGram(NGram):
 
     def __init__(self, n, sents):
@@ -255,18 +303,22 @@ class InterpolatedNGram(NGram):
         l = 1.0
         if self.n > 1:
             l = self.lamb(prev_tokens)
-        if self.addone:
-                p += l * self.cond_prob_addone(token, prev_tokens)
-        else:
             p += l * self.cond_prob_ML(token, prev_tokens)
+        else:
+            if self.addone:
+                p += l * self.cond_prob_addone(token, prev_tokens)
+            else:
+                p += l * self.cond_prob_ML(token, prev_tokens)
         v = 1 - l
+
         for m in range(self.n - 1):
             prev_tokens = prev_tokens[1:]
             if (m + 1) == (self.n - 1): # ultimo lambda
                 l = v
             else:
                 l = v * self.lamb(prev_tokens)
-            if self.addone:
+
+            if (m + 1) == (self.n - 1) and self.addone:
                 p += l * self.cond_prob_addone(token, prev_tokens)
             else:
                 p += l * self.cond_prob_ML(token, prev_tokens)
@@ -274,50 +326,64 @@ class InterpolatedNGram(NGram):
         return p
 
 
-class NGramGenerator(object):
+class BackOffNGram(NGram):
 
-    def __init__(self, model):
+    def __init__(self, n, sents, beta=None, addone=True):
         """
-        model -- n-gram model.
+        Back-off NGram model with discounting as described by Michael Collins.
+        n -- order of the model.
+        sents -- list of sentences, each one being a list of tokens.
+        beta -- discounting hyper-parameter (if not given, estimate using
+            held-out data).
+        addone -- whether to use addone smoothing (default: True).
         """
-        self.n = model.n
-        self.counts = model.counts
-        self.probs = defaultdict(dict)
-        self.sorted_probs = defaultdict(dict)
-        for i,k in self.counts.items():
-            if len(i) == self.n:
-                token = i[-1:][0]
-                prev_token = i[:-1]
-                p = model.cond_prob(token, list(prev_token))
-                self.probs[prev_token][token] = p
 
-        for i,k in self.probs.items():
-            m = sorted(k.items(), key =lambda asd: (-asd[1], asd[0]))
-            self.sorted_probs[i] = m
+        if beta == None:
+            held_out = sents[int(90*len(sents)/100):]
+            sents = sents[:int(90*len(sents)/100)]
 
-    def generate_token(self, prev_tokens=None):
-        """Randomly generate a token, given prev_tokens.
-        prev_tokens -- the previous n-1 tokens (optional only if n = 1).
+        super(BackOffNGram, self).__init__(n, sents) # heredo de la clase NGram
+
+        self.counts = counts = defaultdict(int)
+        self.addone = addone
+
+# calculo los counts
+        for sent in sents:
+            sent = (['<s>'] *(n-1)) + sent # agrego n-1 tags de inicio de oracion
+            sent.append('</s>')
+            n1 = n
+            for _ in range(n):
+                for i in range(len(sent) - n1 + 1):
+                    ngram = tuple(sent[i: i + n1])
+                    counts[ngram] += 1
+                    if n1 == 1 and ngram != ('<s>',): # excluyo el <s> para que no me sume muchas veces el ().
+                        counts[ngram[:-1]] += 1 # ngram = ().
+                n1 -= 1
+
+# armo el diccionario A
+        self.dict_A = defaultdict(dict)
+        for key, c in self.counts.items():
+            if len(key) == self.n:
+                k = list(key)
+        # considero cualquier cosa para que resulte valido el dict lo importante es la key no el value.
+                self.dict_A[tuple(k[:-1])][k[-1:][0]] = 1
+
+
+    def A(self, tokens):
+        """Set of words with counts > 0 for a k-gram with 0 < k < n.
+        tokens -- the k-gram tuple.
         """
-        tokens_list = self.sorted_probs[prev_tokens]
-        u = random()
-        prob = 0
-        for i in range(len(tokens_list)):
-            prob += tokens_list[i][1]
-            if u <= prob:
-                token = tokens_list[i][0]
-                return token
-
-    def generate_sent(self):
-        """Randomly generate a sentence."""
-        sent = []
-        tok = ''
-        prev_token = ['<s>'] * (self.n -1)
-        while sent == [] or tok != '</s>':
-            tok = self.generate_token(tuple(prev_token))
-            sent.append(tok)
-            prev_token.append(tok)
-            prev_token = prev_token[1:]
-        return sent[:-1]
+        tokens_list = self.dict_A[tokens]
+        return set(tokens_list)
 
 
+    def alpha(self, tokens):
+        """Missing probability mass for a k-gram with 0 < k < n.
+        tokens -- the k-gram tuple.
+        """
+
+
+    def denom(self, tokens):
+        """Normalization factor for a k-gram with 0 < k < n.
+        tokens -- the k-gram tuple.
+        """
