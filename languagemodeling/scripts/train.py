@@ -9,14 +9,15 @@ Options:
   -m <model>    Model to use [default: ngram]:
                   ngram: Unsmoothed n-grams.
                   addone: N-grams with add-one smoothing.
-                  interpolated : N-gram 
+                  interpolated : N-gram with interpotated smoothing
+                  backoff: N-gram with discounting back-off smoothing
   -o <file>     Output model file.
   -h --help     Show this screen.
 """
 from docopt import docopt
 import pickle
 from nltk.corpus import gutenberg
-from languagemodeling.ngram import NGram, AddOneNGram, InterpolatedNGram
+from languagemodeling.ngram import NGram, AddOneNGram, InterpolatedNGram, BackOffNGram
 
 
 if __name__ == '__main__':
@@ -36,6 +37,8 @@ if __name__ == '__main__':
         m = AddOneNGram(n, sents)
     elif model == 'interpolated':
         m = InterpolatedNGram(n, sents)
+    elif model == 'backoff':
+        m = BackOffNGram(n, sents)
     else:
         m = NGram(n, sents)
 
