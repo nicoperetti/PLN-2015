@@ -25,11 +25,17 @@ if __name__ == '__main__':
     # load the data
     sents = gutenberg.sents('austen-emma.txt')
 
+    # split the corpus(90%-10%)
+    cant = int(90 * len(sents) / 100)
+    sents = sents[:cant]
+
     # train the model
     n = int(opts['-n'])
     model = opts['-m']
     if model == 'addone':
         m = AddOneNGram(n, sents)
+    elif model == 'interpolated':
+        m = InterpolatedNGram(n, sents)
     else:
         m = NGram(n, sents)
 

@@ -151,11 +151,17 @@ class InterpolatedNGram(NGram):
             held-out data).
         addone -- whether to use addone smoothing (default: True).
         """
+
+        if not gamma:
+            held_out = sents[int(90*len(sents)/100):]
+            sents = sents[:int(90*len(sents)/100)]
+
         super(InterpolatedNGram, self).__init__(n, sents) # heredo de la clase NGram
 
-        self.addone = addone
-        self.gamma = gamma
         self.counts = counts = defaultdict(int)
+        self.addone = addone
+
+# calculo los counts
         for sent in sents:
             sent = (['<s>'] *(n-1)) + sent # agrego n-1 tags de inicio de oracion
             sent.append('</s>')
@@ -168,6 +174,41 @@ class InterpolatedNGram(NGram):
                         counts[ngram[:-1]] += 1 # ngram = ().
                 n1 -= 1
 
+# calculo la longitud del vocabulario
+        v_list = []
+        for gram, c in self.counts.items():
+            if len(gram) == self.n:
+                for i in gram:
+                    v_list.append(i)
+        v_list = list(set(v_list))
+        if '<s>' in v_list:
+            v_list.remove('<s>')
+        self.v = len(v_list)
+
+
+# calculo de gamma
+        if not gamma:
+            m = 0
+            for sent in held_out:
+                m += len(sent)
+
+            self.gamma = 1
+            pp1 = self.perplexity(m, held_out)
+            result = self.gamma
+            for _ in range(5): # DOIT mejorar esto
+                self.gamma += 200 # DOIT elejir algo mejor
+                pp2 = self.perplexity(m, held_out)
+                if pp2 < pp1:
+                    result = self.gamma
+                    pp1 = pp2
+            self.gamma = result
+        else:
+            self.gamma = gamma
+
+    def V(self):
+        """Size of the vocabulary.
+        """
+        return self.v
 
     def cond_prob_ML(self, token, prev_tokens=None):
         """Conditional probability of a token.
@@ -185,6 +226,20 @@ class InterpolatedNGram(NGram):
             p = float(self.count(tuple(tokens))) / self.count(tuple(prev_tokens))
         return p
 
+    def cond_prob_addone(self, token, prev_tokens=None):
+        """Conditional probability of a token with smoothing addone.
+        token -- the token.
+        prev_tokens -- the previous n-1 tokens (optional only if n = 1).
+        """
+        n = self.n
+        if not prev_tokens:
+            prev_tokens = []
+
+        tokens = prev_tokens + [token]
+        p = float(self.count(tuple(tokens)) + 1) / (self.count(tuple(prev_tokens)) + self.V())
+        return p
+
+
     def lamb(self, prev_tokens):
         """ calculate a lambda
         """
@@ -196,14 +251,14 @@ class InterpolatedNGram(NGram):
         token -- the token.
         prev_tokens -- the previous n-1 tokens (optional only if n = 1).
         """
-#        if self.addone:
-#            
-#        else:
         p = 0.0
         l = 1.0
         if self.n > 1:
             l = self.lamb(prev_tokens)
-        p += l * self.cond_prob_ML(token, prev_tokens)
+        if self.addone:
+                p += l * self.cond_prob_addone(token, prev_tokens)
+        else:
+            p += l * self.cond_prob_ML(token, prev_tokens)
         v = 1 - l
         for m in range(self.n - 1):
             prev_tokens = prev_tokens[1:]
@@ -211,9 +266,13 @@ class InterpolatedNGram(NGram):
                 l = v
             else:
                 l = v * self.lamb(prev_tokens)
-            p += l * self.cond_prob_ML(token, prev_tokens)
+            if self.addone:
+                p += l * self.cond_prob_addone(token, prev_tokens)
+            else:
+                p += l * self.cond_prob_ML(token, prev_tokens)
             v = v -l
         return p
+
 
 class NGramGenerator(object):
 
