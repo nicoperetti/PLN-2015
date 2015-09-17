@@ -346,6 +346,7 @@ class BackOffNGram(NGram):
 
         self.counts = counts = defaultdict(int)
         self.addone = addone
+        self.beta = beta
 
 # calculo los counts
         for sent in sents:
@@ -377,13 +378,33 @@ class BackOffNGram(NGram):
         return set(tokens_list)
 
 
-    def alpha(self, tokens):
+    def alpha(self, tokens): # DOIT optimizar
         """Missing probability mass for a k-gram with 0 < k < n.
         tokens -- the k-gram tuple.
         """
+#        list_A = list(self.A(tokens))
+#        nom = 0
+#        for i in range(len(list_A)):
+#            tok = tokens + tuple(list_A[i:i+1])
+#            nom += self.counts[tok]
+#        nom = nom - (len(list_A) * self.beta)
+#        return 1 - (nom / self.counts[tokens])
 
+#        tambien se puede calcular asi ver bien
+        list_A = list(self.A(tokens))
+        nom = self.beta * len(list_A)
+        return nom / float(self.counts[tokens])
 
     def denom(self, tokens):
         """Normalization factor for a k-gram with 0 < k < n.
         tokens -- the k-gram tuple.
         """
+        
+
+    def cond_prob(self, token, prev_tokens=None):
+        """Conditional probability of a token.
+        token -- the token.
+        prev_tokens -- the previous n-1 tokens (optional only if n = 1).
+        """
+
+
