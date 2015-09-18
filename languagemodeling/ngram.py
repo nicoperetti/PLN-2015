@@ -291,6 +291,8 @@ class InterpolatedNGram(NGram):
     def lamb(self, prev_tokens):
         """ calculate a lambda
         """
+        if not prev_tokens:
+            prev_tokens = []
         prev_tokens = tuple(prev_tokens)
         return self.count(prev_tokens) / (self.count(prev_tokens) + self.gamma)
 
@@ -364,10 +366,25 @@ class BackOffNGram(NGram):
 # armo el diccionario A
         self.dict_A = defaultdict(dict)
         for key, c in self.counts.items():
-            if len(key) == self.n:
+            if len(key) > 1: # necesito todas mayores a 1
                 k = list(key)
-        # considero cualquier cosa para que resulte valido el dict lo importante es la key no el value.
                 self.dict_A[tuple(k[:-1])][k[-1:][0]] = 1
+
+# calculo la longitud del vocabulario
+        v_list = []
+        for gram, c in self.counts.items():
+            if len(gram) == self.n:
+                for i in gram:
+                    v_list.append(i)
+        v_list = list(set(v_list))
+        if '<s>' in v_list:
+            v_list.remove('<s>')
+        self.v = len(v_list)
+
+    def V(self):
+        """Size of the vocabulary.
+        """
+        return self.v
 
 
     def A(self, tokens):
@@ -395,16 +412,81 @@ class BackOffNGram(NGram):
         nom = self.beta * len(list_A)
         return nom / float(self.counts[tokens])
 
+    def cond_prob_ML(self, token, prev_tokens=None):
+        """Conditional probability of a token.
+        token -- the token.
+        prev_tokens -- the previous n-1 tokens (optional only if n = 1).
+        """
+        n = self.n
+        if not prev_tokens:
+            prev_tokens = []
+
+        tokens = prev_tokens + [token]
+        if float(self.count(tuple(tokens))) == 0.0:
+            p = 0.0
+        else:
+            p = float(self.count(tuple(tokens))) / self.count(tuple(prev_tokens))
+        return p
+
+    def cond_prob_addone(self, token, prev_tokens=None):
+        """Conditional probability of a token with smoothing addone.
+        token -- the token.
+        prev_tokens -- the previous n-1 tokens (optional only if n = 1).
+        """
+        n = self.n
+        if not prev_tokens:
+            prev_tokens = []
+
+        tokens = prev_tokens + [token]
+        p = float(self.count(tuple(tokens)) + 1) / (self.count(tuple(prev_tokens)) + self.V())
+        return p
+
     def denom(self, tokens):
         """Normalization factor for a k-gram with 0 < k < n.
         tokens -- the k-gram tuple.
         """
-        
+        list_A = list(self.A(tokens))
+        prev_tokens = list(tokens)
+        result = 0
+        for tok in list_A:
+            if len(tokens) > 1:
+                c_p = self.cond_prob(tok, prev_tokens[1:])
+            else:
+                if self.addone:
+                    c_p = self.cond_prob_addone(tok)
+                else:
+                    c_p = self.cond_prob_ML(tok)
+            result += c_p
+        return 1 - result
+
 
     def cond_prob(self, token, prev_tokens=None):
         """Conditional probability of a token.
         token -- the token.
         prev_tokens -- the previous n-1 tokens (optional only if n = 1).
         """
-
+        if self.n == 1 and not prev_tokens:
+            if self.addone:
+                c_p = self.cond_prob_addone(token)
+            else:
+                c_p = self.cond_prob_ML(token)
+            result = c_p
+        else:
+            p_tok = tuple(prev_tokens) # Ver cuando prev_tokens sea None
+            list_A = list(self.A(p_tok))
+            if token in list_A:
+                tokens = p_tok + (token,)
+                result = (self.count(tokens) - self.beta) / float(self.count(p_tok))
+            else:
+                if len(prev_tokens) > 1:
+                    c_p = self.cond_prob(token, prev_tokens[1:])
+                else:
+                    if self.addone:
+                        c_p = self.cond_prob_addone(token)
+                    else:
+                        c_p = self.cond_prob_ML(token)
+                alp = self.alpha(p_tok)
+                d = self.denom(p_tok)
+                result = alp * (c_p / d)
+        return result
 
