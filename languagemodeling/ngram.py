@@ -218,9 +218,13 @@ class InterpolatedNGram(NGram):
                 for i in range(len(sent) - n1 + 1):
                     ngram = tuple(sent[i: i + n1])
                     counts[ngram] += 1
-                    if n1 == 1 and ngram != ('<s>',): # excluyo el <s> para que no me sume muchas veces el ().
+                    if n1 == 1:
                         counts[ngram[:-1]] += 1 # ngram = ().
+                tag_st = tuple(['<s>'] *(n1-1))
+                if tag_st != ():
+                    counts[tag_st] += 1
                 n1 -= 1
+                sent = sent[1:]
 
 # calculo la longitud del vocabulario
         v_list = []
