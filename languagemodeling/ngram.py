@@ -348,7 +348,6 @@ class BackOffNGram(NGram):
 
         self.counts = counts = defaultdict(int)
         self.addone = addone
-        self.beta = beta
 
 # calculo los counts
         for sent in sents:
@@ -359,16 +358,21 @@ class BackOffNGram(NGram):
                 for i in range(len(sent) - n1 + 1):
                     ngram = tuple(sent[i: i + n1])
                     counts[ngram] += 1
-                    if n1 == 1 and ngram != ('<s>',): # excluyo el <s> para que no me sume muchas veces el ().
+                    if n1 == 1:
                         counts[ngram[:-1]] += 1 # ngram = ().
+                tag_st = tuple(['<s>'] *(n1-1))
+                if tag_st != ():
+                    counts[tag_st] += 1
                 n1 -= 1
+                sent = sent[1:]
 
 # armo el diccionario A
         self.dict_A = defaultdict(dict)
         for key, c in self.counts.items():
             if len(key) > 1: # necesito todas mayores a 1
                 k = list(key)
-                self.dict_A[tuple(k[:-1])][k[-1:][0]] = 1
+                if k[-1:][0] != '<s>': # mejorar esto muy feo
+                    self.dict_A[tuple(k[:-1])][k[-1:][0]] = 1
 
 # calculo la longitud del vocabulario
         v_list = []
@@ -380,6 +384,27 @@ class BackOffNGram(NGram):
         if '<s>' in v_list:
             v_list.remove('<s>')
         self.v = len(v_list)
+
+
+# calculo de beta
+        if beta == None:
+            m = 0
+            for sent in held_out:
+                m += len(sent)
+
+            self.beta = 0.0
+            pp1 = self.perplexity(m, held_out)
+            result = self.beta
+            for _ in range(10): # DOIT mejorar esto
+                self.beta += 0.1 # DOIT elejir algo mejor
+                pp2 = self.perplexity(m, held_out)
+                if pp2 < pp1:
+                    result = self.beta
+                    pp1 = pp2
+            self.beta = result
+        else:
+            self.beta = beta
+
 
     def V(self):
         """Size of the vocabulary.
@@ -409,8 +434,11 @@ class BackOffNGram(NGram):
 
 #        tambien se puede calcular asi ver bien
         list_A = list(self.A(tokens))
-        nom = self.beta * len(list_A)
-        return nom / float(self.counts[tokens])
+        if len(list_A) == 0:
+            return 1
+        else:
+            nom = self.beta * len(list_A)
+            return nom / float(self.counts[tokens])
 
     def cond_prob_ML(self, token, prev_tokens=None):
         """Conditional probability of a token.
@@ -465,7 +493,8 @@ class BackOffNGram(NGram):
         token -- the token.
         prev_tokens -- the previous n-1 tokens (optional only if n = 1).
         """
-        if self.n == 1 and not prev_tokens:
+
+        if self.n == 1 or not prev_tokens:
             if self.addone:
                 c_p = self.cond_prob_addone(token)
             else:
@@ -487,6 +516,9 @@ class BackOffNGram(NGram):
                         c_p = self.cond_prob_ML(token)
                 alp = self.alpha(p_tok)
                 d = self.denom(p_tok)
-                result = alp * (c_p / d)
+                if c_p == 0:
+                    result = 0.0
+                else:
+                    result = alp * (c_p / d)
         return result
 
