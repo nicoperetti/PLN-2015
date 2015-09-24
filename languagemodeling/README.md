@@ -74,7 +74,7 @@ evaluacion del modelo de suavizado addone
 | 1 | 1212        |
 | 2 | 3106        |
 | 3 | 15121       |
-| 4 | 37730       |
+| 4 | 22118       |
 
 
 Ejercicio 6
