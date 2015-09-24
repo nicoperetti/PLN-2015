@@ -101,6 +101,6 @@ evaluacion del modelo de suavizado backoff con discounting
 | n | Perplejidad |
 |---|-------------|
 | 1 | 1212        |
-| 2 | 3106        |
-| 3 | 15121       |
-| 4 | 22118       |
+| 2 | 302         |
+| 3 | 285         |
+| 4 | ??          |
