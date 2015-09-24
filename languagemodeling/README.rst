@@ -72,8 +72,25 @@ n: orden del modelo
 m: modelo
 o: archivo que contiene el modelo
 
+
 Ejercicio 5
 -----------
+
+Se implementaron los métodos de log-probability, cross-entropy y perplejidad en la clase NGram.
+Se escribió un scripts eval.py en el cual se carga un modelo entrenado con el 90% del corpus y lo evalua con el 10%
+restante. A menor perplejidad mejor es el modelo.
+evaluar: python scripts/eval.py -i <file>
+i: modelo entrenado
+
+evaluacion del modelo de suavizado addone
+
+| n | Perplejidad |
+|---|-------------|
+| 1 | 1404        |
+| 2 | 2889        |
+| 3 | 20623       |
+| 4 | 40000       |
+
 
 Ejercicio 6
 -----------
