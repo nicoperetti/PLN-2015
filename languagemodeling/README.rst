@@ -40,6 +40,7 @@ oraciones gereradas
 | 2 |            |
 | 3 |            |
 | 4 |            |
+|   |            |
 
 Ejercicio 4
 -----------
