@@ -80,7 +80,10 @@ evaluacion del modelo de suavizado addone
 Ejercicio 6
 -----------
 
-evaluacion del modelo de suavizado addone
+Se implemento la clase InterpolatedNGram. si el parametro gamma de esta clase no es dado se calcula utilizando
+datos held-out. Utiliza addone para los unigramas.
+
+evaluacion del modelo de suavizado por interpolacion
 
 | n | Perplejidad |
 |---|-------------|
@@ -91,8 +94,9 @@ evaluacion del modelo de suavizado addone
 
 Ejercicio 7
 -----------
+Se implemento la clase BackOffNGram. Si el parametro de discounting beta no es dado se estima el mejor beta.
 
-evaluacion del modelo de suavizado addone
+evaluacion del modelo de suavizado backoff con discounting
 
 | n | Perplejidad |
 |---|-------------|
