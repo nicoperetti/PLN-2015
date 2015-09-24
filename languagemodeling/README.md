@@ -81,17 +81,19 @@ Ejercicio 6
 -----------
 
 evaluacion del modelo de suavizado addone
+
 | n | Perplejidad |
 |---|-------------|
 | 1 | 1221        |
 | 2 | 394         |
-| 3 | 15121       |
-| 4 | 22118       |
+| 3 | 375         |
+| 4 | 386         |
 
 Ejercicio 7
 -----------
 
 evaluacion del modelo de suavizado addone
+
 | n | Perplejidad |
 |---|-------------|
 | 1 | 1212        |
