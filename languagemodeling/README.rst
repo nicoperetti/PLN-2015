@@ -36,7 +36,7 @@ n: cantidad de sentencias generadas
 oraciones gereradas
 
 | n | oraciones                                                                                                                                   |
-|---|-------------------------------------------------------------------------------------------------------------------------------------------- |
+|---|---------------------------------------------------------------------------------------------------------------------------------------------|
 | 1 |se . por y volar Ser Ser estancia ponerse negro Insistía reír el exponer banderizo su , — sobre hizo plata que . un restos — de preceda único |
 |   |reconoció bien                                                                                                                               |
 | 2 |— pensó Sansa empezaba a los colgó el espectáculo ante el camino — Tal vez levantaba .                                                       |
