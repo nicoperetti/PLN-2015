@@ -19,9 +19,13 @@ en un diccionario las ocurrencias de n-gramas y n-1-gramas.
 También se implemento la probabilidad de una sentencia y la log-probability de una sentencia, utilizando la
 probabilidad condicional.
 
+
 Para entrenar el modelo: python scripts/train.py -n <n> -o <file> 
+
 n: orden del modelo
+
 o: archivo que contiene el modelo
+
 
 Ejercicio 3
 -----------
@@ -29,9 +33,15 @@ Ejercicio 3
 Se implemento la clase NGramGenerator. se guardan las probabilidades de un token dado los n-1 anteriores y
 se guardan decendientemente para optimizar.
 También se implementaron los métodos generate_token y generate_sent.
-Además se escribió un scripts generate.py. Para correrlo python scripts/generate.py -i <file> -n <n>
+Además se escribió un scripts generate.py. 
+
+Para correrlo python scripts/generate.py -i <file> -n <n>
+
+
 i: modelo ya entrenado
+
 n: cantidad de sentencias generadas
+
 
 | n | oraciones gereradas                                                                                                                             |
 |---|-------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -52,9 +62,13 @@ Se implemento la clase AddOneNGram, la cual hereda de la clase NGram y agraga en
 del vocabulario y se modifica el método cond_prob para que calcule la probabilidad condicional utilizando
 suavizado addone.
 Se modifico train.py para que acepte el modelo addone
+
 entrenar: python scripts/train.py -n <n> [-m <model>] -o <file> 
+
 n: orden del modelo
+
 m: modelo
+
 o: archivo que contiene el modelo
 
 
@@ -62,9 +76,12 @@ Ejercicio 5
 -----------
 
 Se implementaron los métodos de log-probability, cross-entropy y perplejidad en la clase NGram.
-Se escribió un scripts eval.py en el cual se carga un modelo entrenado con el 90% del corpus y lo evalua con el 10%
-restante. A menor perplejidad mejor es el modelo.
+Se escribió un scripts eval.py en el cual se carga un modelo entrenado con el 90% del corpus y 
+lo evalua con el 10% restante. 
+A menor perplejidad mejor es el modelo.
+
 evaluar: python scripts/eval.py -i <file>
+
 i: modelo entrenado
 
 evaluacion del modelo de suavizado addone
