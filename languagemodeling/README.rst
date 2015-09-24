@@ -36,19 +36,27 @@ n: cantidad de sentencias generadas
 oraciones gereradas
 
 1-gram
+
 se . por y volar Ser Ser estancia ponerse negro Insistía reír el exponer banderizo su , — sobre hizo plata que . un restos — de preceda único
+
 reconoció bien
 
 2-gram
+
 — pensó Sansa empezaba a los colgó el espectáculo ante el camino — Tal vez levantaba .
+
 — Los Targaryen conquistó Dorne , tiene al sur , ser por un círculo de ellos un bebé .
 
 3-gram
+
 El cuchillo también es mi sobrina , y sería antes de que lleguen Qhorin Mediamano tenía miedo de que anochezca .
+
 — Hace demasiado tiempo , sí , puede que no fuera así .
 
 4-gram
+
 — Bah , yo soy el capitán de su guardia , Mediamano había confeccionado media docena de thenitas que iban con él .
+
 —¿ Con qué sueñas , niña ?                                |
 
 
