@@ -34,16 +34,30 @@ i: modelo ya entrenado
 n: cantidad de sentencias generadas
 
 oraciones gereradas
-| n | oraciones  |
-|---|------------|
-| 1 |            |
-| 2 |            |
-| 3 |            |
-| 4 |            |
-|   |            |
+
+| n | oraciones                                                                                                                                      |
+|---|------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1 |? se . por y volar Ser Ser estancia ponerse negro Insistía reír el exponer banderizo su , — sobre hizo plata que . un restos — de preceda único|
+|   |reconoció bien                                                                                                                                  |
+| 2 |— pensó Sansa empezaba a los colgó el espectáculo ante el camino — Tal vez levantaba .                                                          |
+|   |— Los Targaryen conquistó Dorne , tiene al sur , ser por un círculo de ellos un bebé .                                                          |
+| 3 |El cuchillo también es mi sobrina , y sería antes de que lleguen Qhorin Mediamano tenía miedo de que anochezca .                                 |
+|   |— Hace demasiado tiempo , sí , puede que no fuera así .                                                                                         |
+| 4 |— Bah , yo soy el capitán de su guardia , Mediamano había confeccionado media docena de thenitas que iban con él .                              |
+|   |—¿ Con qué sueñas , niña ?                                                                                                                      |
+|   |                                                                                                                                                |
 
 Ejercicio 4
 -----------
+
+Se implemento la clase AddOneNGram, la cual hereda de la clase NGram y agraga en su init el calculo de la longitud
+del vocabulario y se modifica el método cond_prob para que calcule la probabilidad condicional utilizando
+suavizado addone.
+Se modifico train.py para que acepte el modelo addone
+entrenar: python scripts/train.py -n <n> [-m <model>] -o <file> 
+n: orden del modelo
+m: modelo
+o: archivo que contiene el modelo
 
 Ejercicio 5
 -----------
