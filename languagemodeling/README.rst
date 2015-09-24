@@ -45,7 +45,6 @@ oraciones gereradas
 |   |— Hace demasiado tiempo , sí , puede que no fuera así .                                                                                      |
 | 4 |— Bah , yo soy el capitán de su guardia , Mediamano había confeccionado media docena de thenitas que iban con él .                           |
 |   |—¿ Con qué sueñas , niña ?                                                                                                                   |
-|   |                                                                                                                                             |
 
 Ejercicio 4
 -----------
