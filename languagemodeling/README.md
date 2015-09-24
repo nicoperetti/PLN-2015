@@ -103,4 +103,4 @@ evaluacion del modelo de suavizado backoff con discounting
 | 1 | 1212        |
 | 2 | 302         |
 | 3 | 285         |
-| 4 | ??          |
+| 4 | 293         |
