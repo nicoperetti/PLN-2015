@@ -338,21 +338,6 @@ class BackOffNGram(Intermediate):
 
         self.addone = addone
 
-# calculo de beta
-        if beta == None:
-            self.beta = 0.0
-            pp1 = self.perplexity(held_out)
-            result = self.beta
-            for _ in range(10): # DOIT mejorar esto
-                self.beta += 0.1 # DOIT elejir algo mejor
-                pp2 = self.perplexity(held_out)
-                if pp2 < pp1:
-                    result = self.beta
-                    pp1 = pp2
-            self.beta = result
-        else:
-            self.beta = beta
-
 # armo el diccionario A
         self.dict_A = defaultdict(dict)
         for key, c in self.counts.items():
@@ -361,8 +346,31 @@ class BackOffNGram(Intermediate):
                 if k[-1:][0] != '<s>': # mejorar esto muy feo
                     self.dict_A[tuple(k[:-1])][k[-1:][0]] = 1
 
-# calculo los alphas
         self.dict_alpha = defaultdict(int)
+        self.dict_denom = defaultdict(int)
+
+# calculo de beta
+        if beta == None:
+            self.beta = 0.0
+            pp1 = self.perplexity(held_out)
+            result = self.beta
+            for _ in range(5): # DOIT mejorar esto
+                self.alphas_init()
+                self.denom_init()
+                self.beta += 0.2 # DOIT elejir algo mejor
+                pp2 = self.perplexity(held_out)
+                if pp2 < pp1:
+                    result = self.beta
+                    pp1 = pp2
+            self.beta = result
+        else:
+            self.beta = beta
+            self.alphas_init()
+            self.denom_init()
+
+
+# calculo los alphas
+    def alphas_init(self):
         list_counts = dict(self.counts.items())
         list_counts = list_counts.keys()
         list_counts = sorted(list_counts, key =len)
@@ -375,7 +383,7 @@ class BackOffNGram(Intermediate):
                 self.dict_alpha[tokens] = self.beta * len(list_A) / float(self.counts[tokens])
 
 # calculo los denom
-        self.dict_denom = defaultdict(int)
+    def denom_init(self):
         list_counts = dict(self.counts.items())
         list_counts = list_counts.keys()
         list_counts = sorted(list_counts, key =len)

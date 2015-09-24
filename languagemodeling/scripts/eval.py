@@ -10,7 +10,7 @@ Options:
 """
 from docopt import docopt
 import pickle
-from nltk.corpus import gutenberg
+from nltk.corpus import gutenberg, PlaintextCorpusReader
 from languagemodeling.ngram import AddOneNGram, InterpolatedNGram
 
 if __name__ == '__main__':
@@ -22,14 +22,13 @@ if __name__ == '__main__':
     f.close()
 
     # load the data
-    sents = gutenberg.sents('austen-emma.txt')
+#    sents = gutenberg.sents('austen-emma.txt')
+    corpus = PlaintextCorpusReader('corpus/', '1.txt')
+    sents = corpus.sents()
 
     # split the corpus(90%-10%)
     corpus_set = int(90 * len(sents) / 100)
     sents = sents[corpus_set:]
 
-    M = 0
-    for sent in sents:
-        M += len(sent)
-    pp = model.perplexity(M, sents)
+    pp = model.perplexity(sents)
     print(pp)

@@ -16,15 +16,17 @@ Options:
 """
 from docopt import docopt
 import pickle
-from nltk.corpus import gutenberg
+from nltk.corpus import gutenberg, PlaintextCorpusReader
 from languagemodeling.ngram import NGram, AddOneNGram, InterpolatedNGram, BackOffNGram
-
 
 if __name__ == '__main__':
     opts = docopt(__doc__)
 
+
     # load the data
-    sents = gutenberg.sents('austen-emma.txt')
+#    sents = gutenberg.sents('austen-emma.txt')
+    corpus = PlaintextCorpusReader('corpus/', '1.txt')
+    sents = corpus.sents()
 
     # split the corpus(90%-10%)
     cant = int(90 * len(sents) / 100)
@@ -38,7 +40,7 @@ if __name__ == '__main__':
     elif model == 'interpolated':
         m = InterpolatedNGram(n, sents)
     elif model == 'backoff':
-        m = BackOffNGram(n, sents)
+        m = BackOffNGram(n, sents, 0.5)
     else:
         m = NGram(n, sents)
 
