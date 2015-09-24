@@ -71,9 +71,9 @@ evaluacion del modelo de suavizado addone
 
 | n | Perplejidad |
 |---|-------------|
-| 1 | 1404        |
-| 2 | 2889        |
-| 3 | 20623       |
+| 1 | 1212        |
+| 2 | 3106        |
+| 3 | 15121       |
 | 4 | 37730       |
 
 
