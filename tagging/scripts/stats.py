@@ -23,6 +23,7 @@ if __name__ == '__main__':
     words = defaultdict(int)
     tags = defaultdict(int)
     word_tags = defaultdict(int)
+    amb = defaultdict(dict)
     long_sent = 0
     for sent in sents:
         long_sent += len(sent)
@@ -30,6 +31,10 @@ if __name__ == '__main__':
             words[pair[0]] += 1
             tags[pair[1]] += 1
             word_tags[pair] += 1
+            try:
+                amb[pair[0]][pair[1]] += 1
+            except KeyError:
+                amb[pair[0]][pair[1]] = 1
 
     tags_sorted = sorted(tags.items(), key = lambda sor: -sor[1])
     word_tags = sorted(word_tags.items(), key = lambda sor: -sor[1])
@@ -55,5 +60,8 @@ if __name__ == '__main__':
             if count == 5:
                 break
 
-
-
+#    asd = []
+#    for i in range(10):
+#        asd.append(0)
+#    for l in range(10):
+#        
