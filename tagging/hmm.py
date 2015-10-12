@@ -1,4 +1,5 @@
 from math import log2
+from collections import defaultdict
 
 class HMM:
 
@@ -10,28 +11,36 @@ class HMM:
         out -- output probabilities dictionary.
         """
         self.n = n
-        self.tagset = tagset
+        self.tags = tagset
         self.trans = trans
         self.out = out
 
     def tagset(self):
         """Returns the set of tags.
         """
-        return self.tagset
+        return self.tags
 
     def trans_prob(self, tag, prev_tags):
         """Probability of a tag.
         tag -- the tag.
         prev_tags -- tuple with the previous n-1 tags (optional only if n = 1).
         """
-        return self.trans[prev_tags][tag]
+        try:
+            p = self.trans[prev_tags][tag]
+        except KeyError:
+            p = 0.0
+        return p
 
     def out_prob(self, word, tag):
         """Probability of a word given a tag.
         word -- the word.
         tag -- the tag.
         """
-        return self.out[tag][word]
+        try:
+            p = self.out[tag][word]
+        except KeyError:
+            p = 0.0
+        return p
 
     def tag_prob(self, y):
         """
@@ -89,6 +98,9 @@ class HMM:
         """Returns the most probable tagging for a sentence.
         sent -- the sentence.
         """
+        tagger = ViterbiTagger(self)
+        return tagger.tag(sent)
+
 
 class ViterbiTagger:
 
@@ -96,8 +108,34 @@ class ViterbiTagger:
         """
         hmm -- the HMM.
         """
+        self.hmm = hmm
 
     def tag(self, sent):
         """Returns the most probable tagging for a sentence.
         sent -- the sentence.
         """
+        hmm = self.hmm
+        n = hmm.n
+        self._pi = defaultdict(lambda : defaultdict(tuple))
+        ini = ('<s>',) * (n - 1)
+        self._pi[0][ini] = (log2(1.0), [])
+
+        for i, word in enumerate(sent, 1):
+            pi_ant = self._pi[i-1].items()
+            for key, value in pi_ant:
+                for v in hmm.tagset():
+                    q = hmm.trans_prob(v, key)
+                    e = hmm.out_prob(word, v)
+                    if q * e != 0:
+                        asd = key[1:] + (v,)
+                        pro = value[0] + log2(q) + log2(e)
+                        lis = list(value[1])
+                        lis.append(v)
+                        self._pi[i][asd] = (pro, lis)
+        # mejorar
+        las_pi = self._pi[len(sent)].items()
+        return max([(prob ,dic) for key, (prob ,dic) in las_pi])[1]
+#        for hola, chau in las_pi:
+#            result = chau[1]
+#        return result
+
