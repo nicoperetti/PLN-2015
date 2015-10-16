@@ -150,7 +150,6 @@ class MLHMM:
         """
         self.addone = addone
         self.n = n
-        tagset = []
         tag_frec = defaultdict(int)
         self.counts_w_t = defaultdict(int)
         word_set = []
@@ -171,6 +170,8 @@ class MLHMM:
 
         self.word_set = set(word_set)
         self.tags_set = set(tags_set)
+        self.tagset_len = len(self.tags_set)
+        self.wordset_len = len(self.word_set)
 
     def tcount(self, tokens):
         """Count for an k-gram or k-1-gram.
@@ -197,6 +198,7 @@ class MLHMM:
         tag -- the tag.
         prev_tags -- tuple with the previous n-1 tags (optional only if n = 1).
         """
+        addone = self.addone
         if not prev_tags:
             prev_tags = ()
         assert len(prev_tags) == self.n - 1
@@ -204,16 +206,24 @@ class MLHMM:
         tags = prev_tags + (tag,)
         tags_c = self.tcount(tags)
         prev_tags_c = self.tcount(prev_tags)
-        return tags_c / float(prev_tags_c)
+        if addone:
+            result = (tags_c + 1)/ float(prev_tags_c + self.tagset_len)
+        else:
+            result = tags_c / float(prev_tags_c)
+        return result
 
     def out_prob(self, word, tag):
         """Probability of a word given a tag.
         word -- the word.
         tag -- the tag.
         """
-        p = float(self.tcount(tuple(tag)))
-        if p != 0:
-            p = self.counts_w_t[(word,tag)] / p
+        unk_w = self.unknown(word)
+        if unk_w:
+            p = 1/float(self.wordset_len)
+        else:
+            p = float(self.tcount(tuple(tag)))
+            if p != 0:
+                p = self.counts_w_t[(word,tag)] / p
         return p
 
     def tag_prob(self, y):
@@ -254,7 +264,12 @@ class MLHMM:
         prev_tag = ('<s>',) * (self.n - 1)
         tags = y + ["</s>"]
         for tag in tags:
-            p += log2(self.trans_prob(tag, tuple(prev_tag)))
+            t_p = self.trans_prob(tag, tuple(prev_tag))
+            if t_p == 0:
+                p = float("-inf")
+                break
+            else:
+                p += log2(t_p)
             prev_tag = prev_tag[1:]
             if self.n > 1:
                 prev_tag += (tag,)
@@ -269,7 +284,7 @@ class MLHMM:
         """
         p_w_t = 0.0
         for word, tag in zip(x,y):
-            p_w_t += log2(self.out_prob(word, tag))
+            p_w_t += log2(self.out_prob(word, tag)) #DOIT ver si es cero
         p_t = self.tag_log_prob(y)
         return p_t + p_w_t
 
