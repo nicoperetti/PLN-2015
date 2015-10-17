@@ -52,21 +52,27 @@ if __name__ == '__main__':
         hits_sent = [m == g for m, g in zip(model_tag_sent, gold_tag_sent)]
         hits += sum(hits_sent)
         total += len(sent)
-        acc = float(hits) / total
+        acc = (float(hits) / total) * 100
 
-        progress('{:3.1f}% ({:2.2f}%)'.format(float(i) * 100 / n, acc * 100))
-
-        # acuracy palabras conocidas y desconocidas
+# acuracy palabras conocidas y desconocidas
         for j, word in enumerate(word_sent):
-            t_w = model.tag_word(word)
+            g_t = gold_tag_sent[j]
+            m_t = model_tag_sent[j]
             if model.unknown(word):
                 total_unknown += 1
-                if gold_tag_sent[j] == t_w:
+                if g_t == m_t:
                     hits_unknown += 1
             else:
                 total_known += 1
-                if gold_tag_sent[j] == t_w:
+                if g_t == m_t:
                     hits_known += 1
+        acc_know = (float(hits_known) / total_known) * 100
+        acc_unknow = (float(hits_unknown) / total_unknown) * 100
+
+# progress
+        por = float(i) * 100 / n
+        progress('{:3.1f}% ({:2.2f}%/{:2.2f}%/{:2.2f}%)'.format(por, acc, acc_know, acc_unknow))
+
 
     acc = float(hits) / total
     acc_known = float(hits_known) / total_known

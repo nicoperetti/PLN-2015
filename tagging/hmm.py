@@ -145,7 +145,6 @@ class ViterbiTagger:
 #                            self._pi[i][tupl] = (pro, lis)
 
         for i, word in enumerate(sent, 1):
-            print(i)
             pi_ant = self._pi[i-1].items()
             for v in K:
                 e = hmm.out_prob(word, v)
@@ -155,8 +154,6 @@ class ViterbiTagger:
                         if q * e != 0:
                             tupl = key + (v,)
                             tupl = tupl[1:]
-                            print("q: ",log2(q))
-                            print("e: ",log2(e))
                             pro = p + log2(q) + log2(e)
                             lis = list(dic)
                             lis.append(v)
@@ -166,12 +163,9 @@ class ViterbiTagger:
                                     self._pi[i][tupl] = (pro, lis)
                             except KeyError:
                                 self._pi[i][tupl] = (pro, lis)
-#                                print("q: ",log2(q))
-#                                print("e: ",log2(e))
 
         las_pi = self._pi[len(sent)].items()
         final = []
-        print(self._pi)
         for key, (prob ,dic) in las_pi:
             t_p = hmm.trans_prob('</s>', key)
             if t_p != 0:
@@ -266,12 +260,10 @@ class MLHMM:
         tag -- the tag.
         """
         unk_w = self.unknown(word)
-#        print("tag: ",tag)
         if unk_w:
             p = 1/float(self.wordset_len)
         else:
             p = float(self.tcount_1[(tag,)])
-#            print("count of tag: ",p)
             if p != 0:
                 try:
                     a = self.out_p[tag][word]
