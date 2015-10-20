@@ -17,51 +17,56 @@ if __name__ == '__main__':
 
     # load the data
     corpus = SimpleAncoraCorpusReader('ancora/ancora-2.0/')
+
     sents = list(corpus.tagged_sents())
 
     # compute the statistics
     words = defaultdict(int)
     tags = defaultdict(int)
-    word_tags = defaultdict(int)
-    amb = defaultdict(dict)
-    long_sent = 0
+    word_tags = defaultdict(dict)
+    ambi = defaultdict(dict)
+    l_sent = 0
     for sent in sents:
-        long_sent += len(sent)
-        for pair in sent:
-            words[pair[0]] += 1
-            tags[pair[1]] += 1
-            word_tags[pair] += 1
-            try:
-                amb[pair[0]][pair[1]] += 1
-            except KeyError:
-                amb[pair[0]][pair[1]] = 1
+        l_sent += len(sent)
+        for (w,t) in sent:
+            words[w] += 1
+            tags[t] += 1
+            if w in word_tags[t]:
+                word_tags[t][w] += 1
+            else:
+                word_tags[t][w] = 1
+            if t in ambi[w]:
+                ambi[w][t] += 1
+            else:
+                ambi[w][t] = 1
 
-    tags_sorted = sorted(tags.items(), key = lambda sor: -sor[1])
-    word_tags = sorted(word_tags.items(), key = lambda sor: -sor[1])
-
-    tags_sorted = tags_sorted[:10]
-    tags_sorted_f = [d[0] for d in tags_sorted]
-    tags_ocur = long_sent
     print('sents: {}'.format(len(sents)))
-    print('word_ocur: {}'.format(long_sent))
+    print('word_ocur: {}'.format(l_sent))
     print('voc_words_size: {}'.format(len(words)))
     print('voc_tags_size: {}'.format(len(tags)))
-    for i in tags_sorted:
-        print('tags_frec: {}, frec: {}, %: {}'.format(i[0],i[1], float(i[1]/tags_ocur)))
 
-    for t in tags_sorted_f:
-        print(t)
-        print("\n")
-        count = 0
-        for pair in word_tags:
-            if pair[0][1] == t:
-                print(pair[0][0])
-                count += 1
-            if count == 5:
-                break
+    tags_sorted = sorted(tags.items(), key = lambda sor: -sor[1])
+    tags_sorted = tags_sorted[:10]
+    five_frec = []
+    for (t,f) in tags_sorted:
+        t_w_s = sorted(word_tags[t].items(), key = lambda sor: -sor[1])
+        t_w_s = t_w_s[:5]
+        five_frec.append([x for (x,y) in t_w_s])
+    print("\n")
+    print('tags    frec          %                       more frecuently words')
+    for n, i in enumerate(tags_sorted):
+        print(' {}     {}      {}    {}'.format(i[0],i[1], 100*float(i[1]/l_sent),five_frec[n]))
 
-#    asd = []
-#    for i in range(10):
-#        asd.append(0)
-#    for l in range(10):
-#        
+    count_ambi = [0 for i in range(9)]
+    five_frec = []
+    for (k,v) in ambi.items():
+        l = len(v)
+        count_ambi[l-1] += 1
+    print('\n')
+    print("ambiguous level      words number        %")
+    for i,c in enumerate(count_ambi,1):
+        p = (c/float(len(words)))*100
+        print(' {}                  {}                    {}'.format(i, c, p))
+
+
+
