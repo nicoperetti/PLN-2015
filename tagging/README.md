@@ -5,29 +5,29 @@ PLN 2015: Práctico 2
 Ejercicio 1
 -----------
 
-Este ejercicio consistia en sacar estadísticas sobre el corpus.
+Este ejercicio consistía en sacar estadísticas sobre el corpus.
 
 Estadísticas básicas:
 
-| cantidad de oraciones   | 17379  |
-| cantidad de ocurrencias | 517268 |
-| vocabulario             | 46482  |
-| vocabulario de tags     | 48     |
+Cantidad de oraciones:    17379  
+Cantidad de ocurrencias:  517268 
+Vocabulario:              46482  
+Vocabulario de tags:      48     
 
 Etiquetas más frecuentes:
 
-| tag | frecuencia | %     | cinco palabras más frecuentes                         |
-|-----|------------|-------|-------------------------------------------------------|
-| nc  |   92002    | 17.78 | 'años', 'presidente', 'millones', 'equipo', 'partido' |
-| sp  |   79904    | 15.44 | 'de', 'en', 'a', 'del', 'con'                         |
-| da  |   54552    | 10.54 | 'la', 'el', 'los', 'las', 'El'                        |
-| vm  |   50609    | 9.78  | 'está', 'tiene', 'dijo', 'puede', 'hace'              |
-| aq  |   33904    | 6.55  | 'pasado', 'gran', 'mayor', 'nuevo', 'próximo'         |
-| fc  |   30148    | 5.82  | ','                                                   |
-| np  |   29113    | 5.62  | 'Gobierno', 'España', 'PP', 'Barcelona', 'Madrid'     |
-| fp  |   21157    | 4.09  | '.', '(', ')'                                         |
-| rg  |   15333    | 2.96  | 'más', 'hoy', 'también', 'ayer', 'ya'                 |
-| cc  |   15023    | 2.90  | 'y', 'pero', 'o', 'Pero', 'e'                         |
+| tag | significado del tag    | frecuencia | %     | cinco palabras más frecuentes                         |
+|-----|------------------------|------------|-------|-------------------------------------------------------|
+| nc  | Nombre Común           |   92002    | 17.78 | 'años', 'presidente', 'millones', 'equipo', 'partido' |
+| sp  | Adposición Preposición |   79904    | 15.44 | 'de', 'en', 'a', 'del', 'con'                         |
+| da  | Determinante Artículo  |   54552    | 10.54 | 'la', 'el', 'los', 'las', 'El'                        |
+| vm  | Verbo Principal        |   50609    | 9.78  | 'está', 'tiene', 'dijo', 'puede', 'hace'              |
+| aq  | Adjetivo Calificativo  |   33904    | 6.55  | 'pasado', 'gran', 'mayor', 'nuevo', 'próximo'         |
+| fc  | Puntuación             |   30148    | 5.82  | ','                                                   |
+| np  | Nombre Propio          |   29113    | 5.62  | 'Gobierno', 'España', 'PP', 'Barcelona', 'Madrid'     |
+| fp  | Puntuación             |   21157    | 4.09  | '.', '(', ')'                                         |
+| rg  | Adverbio general       |   15333    | 2.96  | 'más', 'hoy', 'también', 'ayer', 'ya'                 |
+| cc  | Conjunción Coordinada  |   15023    | 2.90  | 'y', 'pero', 'o', 'Pero', 'e'                         |
 
 Niveles de ambiguedad:
 
@@ -44,23 +44,11 @@ Niveles de ambiguedad:
 |       9             |     0                | 0.0   |
 
 
+
 Ejercicio 2
 -----------
-
-Se implemento un modelo de n-gramas representado en la clase NGram, donde lo primero que se tuvo en cuenta
-es la agragación de los n-1 tags de inicio de cada sentencia y el tags de final de sentencia que son "<s>"
-y "</s>" respectivamente.
-Para poder implementar la probabilidad condicional de un token dado los previos n-1 tokens tuve que guardar
-en un diccionario las ocurrencias de n-gramas y n-1-gramas.
-También se implemento la probabilidad de una sentencia y la log-probability de una sentencia, utilizando la
-probabilidad condicional.
-
-
-Para entrenar el modelo: python scripts/train.py -n <n> -o <file> 
-
-n: orden del modelo
-
-o: archivo que contiene el modelo
+Implementación de Baseline Tagger, donde para cada palabra elije el tag más frecuente observado
+en el entrenamiento y si la palabra es desconocida devuelvo la etiqueta más frecuente.
 
 
 Ejercicio 3

@@ -11,10 +11,12 @@ class BaselineTagger:
         for tagged_sent in tagged_sents:
             for k, v in tagged_sent:
                 tag_frec[v] += 1
-                try:
+
+                if k in dict_t and v in dict_t[k]:
                     dict_t[k][v] += 1
-                except KeyError:
+                else:
                     dict_t[k][v] = 1
+
 
 # busco el tag mas frecuente
         m = sorted(tag_frec.items(), key = lambda sor: -sor[1])
