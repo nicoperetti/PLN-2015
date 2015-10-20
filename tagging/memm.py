@@ -1,4 +1,7 @@
-from tagging.features import History
+from tagging.features import *
+from sklearn.pipeline import Pipeline
+from featureforge.vectorizer import Vectorizer
+from sklearn.linear_model import LogisticRegression
 
 class MEMM:
 
@@ -8,6 +11,21 @@ class MEMM:
         tagged_sents -- list of sentences, each one being a list of pairs.
         """
         self.n = n
+
+        words_voc = []
+        for tagged_sent in tagged_sents:
+            words_voc += list(list(zip(*tagged_sent))[0])
+        words_voc = set(words_voc)
+        self.words_voc = words_voc
+
+        features = [word_lower, word_istitle, word_isupper, word_isdigit]
+#        features += [PrevWord(i) for i in features]
+        vect = Vectorizer(features)
+        clas = LogisticRegression()
+        self.p = Pipeline([('vect',vect),('clas',clas)])
+        hs = self.sents_histories(tagged_sents)
+        tgs = self.sents_tags(tagged_sents)
+        self.p.fit(hs, tgs)
 
     def sents_histories(self, tagged_sents):
         """
@@ -59,13 +77,29 @@ class MEMM:
         """Tag a sentence.
         sent -- the sentence.
         """
+        prev_tags = ('<s>',) * (self.n - 1)
+        result = []
+        for i in range(len(sent)):
+            history = History(sent, prev_tags, i)
+            tag = self.tag_history(history)
+            result += tag
+            prev_tags += tuple(tag)
+            prev_tags = prev_tags[1:]
+        return result
 
     def tag_history(self, h):
         """Tag a history.
         h -- the history.
         """
+        pipe = self.p
+        return pipe.predict([h])
+
 
     def unknown(self, w):
         """Check if a word is unknown for the model.
         w -- the word.
         """
+        result = True
+        if w in self.words_voc:
+            result = False
+        return result
