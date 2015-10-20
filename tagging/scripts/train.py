@@ -8,6 +8,7 @@ Options:
   -m <model>    Model to use [default: base]:
                   base: Baseline
                   addone: Addone
+                  memm: MEMM
   -n <n>        Order of the model[only if the model is not base]
   -o <file>     Output model file.
   -h --help     Show this screen.
@@ -18,10 +19,12 @@ import pickle
 from corpus.ancora import SimpleAncoraCorpusReader
 from tagging.baseline import BaselineTagger
 from tagging.hmm import MLHMM
+from tagging.memm import MEMM
 
 models = {
     'base': BaselineTagger,
     'addone':MLHMM,
+    'memm': MEMM,
 }
 
 
@@ -35,7 +38,7 @@ if __name__ == '__main__':
 
     # train the model
     m = opts['-m']
-    if m == 'addone':
+    if m == 'addone' or m == 'memm':
         n = int(opts['-n'])
         model = models[m](n, sents)
     else:
