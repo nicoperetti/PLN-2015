@@ -54,29 +54,35 @@ en el entrenamiento y si la palabra es desconocida devuelvo la etiqueta más fre
 Ejercicio 3
 -----------
 
-Se implemento la clase NGramGenerator. se guardan las probabilidades de un token dado los n-1 anteriores y
-se guardan decendientemente para optimizar.
-También se implementaron los métodos generate_token y generate_sent.
-Además se escribió un scripts generate.py. 
+Se programo un scripts train.py que permite entrenar el Baseline Tagger del
+ejercicio anterior y también se programo un script eval.py que evalúa el modelo
+entrenado, calculando accuracy en general, osea cuantas etiquetas se etiquetaron
+bien, y también se evalúa accuracy sobre las palabras conocidas y las no conocidas.
 
-Para correrlo python scripts/generate.py -i <file> -n <n>
+Para entrenar: python3 tagging/scripts/train.py [-m <model>] [-n <n>] -o <file>
+
+<model>: Model to use [default: base]:
+                  base: Baseline
+                  addone: Addone
+                  memm: MEMM
+<n>: Order of the model[only if the model is not base]
+<file>: Output model file.
+
+Para evaluar: python3 tagging/scripts/eval.py -i <file>
+
+<file>: modelo ya entrenado
 
 
-i: modelo ya entrenado
+Para el modelo baseline se obtuvieron los siguientes resultados:
 
-n: cantidad de sentencias generadas
+Accuracy: 89.02%
 
+Accuracy sobre palabras conocidas: 95.34%
 
-| n | oraciones gereradas                                                                                                                             |
-|---|-------------------------------------------------------------------------------------------------------------------------------------------------|
-| 1 | se . por y volar Ser Ser estancia ponerse negro Insistía reír el exponer banderizo su , — sobre hizo plata que . un restos — de preceda único |
-|   | reconoció bien                                                                                                                                  |
-| 2 | — pensó Sansa empezaba a los colgó el espectáculo ante el camino — Tal vez levantaba .                                                          |
-|   | — Los Targaryen conquistó Dorne , tiene al sur , ser por un círculo de ellos un bebé .                                                          |
-| 3 | El cuchillo también es mi sobrina , y sería antes de que lleguen Qhorin Mediamano tenía miedo de que anochezca .                        |
-|   | — Hace demasiado tiempo , sí , puede que no fuera así .                                                                                         |
-| 4 | — Bah , yo soy el capitán de su guardia , Mediamano había confeccionado media docena de thenitas que iban con él .                               |
-|   | —¿ Con qué sueñas , niña ?                                                                                                                      |
+Accuracy sobre palabras desconocidas: 31.80%
+
+Matriz de confusión(Error Analysis):
+
 
 
 Ejercicio 4
