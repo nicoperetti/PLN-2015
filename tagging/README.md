@@ -59,18 +59,15 @@ ejercicio anterior y también se programo un script eval.py que evalúa el model
 entrenado, calculando accuracy en general, osea cuantas etiquetas se etiquetaron
 bien, y también se evalúa accuracy sobre las palabras conocidas y las no conocidas.
 
-Para entrenar: python3 tagging/scripts/train.py [-m <model>] [-n <n>] -o <file>
+Para entrenar: python3 tagging/scripts/train.py -m model -n n -o file
 
-<model>: Model to use [default: base]:
-                  base: Baseline
-                  addone: Addone
-                  memm: MEMM
-<n>: Order of the model[only if the model is not base]
-<file>: Output model file.
+model: Model to use base: Baseline, addone: Addone, memm: MEMM
+n: Order of the model,only if the model is not base.
+file: Output model file.
 
-Para evaluar: python3 tagging/scripts/eval.py -i <file>
+Para evaluar: python3 tagging/scripts/eval.py -i file
 
-<file>: modelo ya entrenado
+file: modelo ya entrenado
 
 
 Para el modelo baseline se obtuvieron los siguientes resultados:
@@ -83,72 +80,41 @@ Accuracy sobre palabras desconocidas: 31.80%
 
 Matriz de confusión(Error Analysis):
 
+|        | di  | vm  | nc   | aq  | cc | rn | dn | rg | vs | pi | pr   | p0 | da  | cs | pp |
+|--------|-----|-----|------|-----|----|----|----|----|----|----|------|----|-----|----|----|
+| **aq** | .2  | 2.0 | 20.0 |     |    |    |    |    |    |    |      |    |     |    |    |
+| **rg** |     |     | 2.8  | .2  | .2 | .2 |    |    |    |    |      |    |     |    |    |
+| **pn** |     |     |      |     |    |    | .5 |    |    |    |      |    |     |    |    |
+| **pi** | 2.6 |     |      |     |    |    |    |    |    |    |      |    |     |    |    |
+| **nc** |     | .8  |      | 3.7 |    |    |    | .3 | .2 |    |      |    |     |    |    |
+| **di** |     |     |      | .2  |    |    |    | .2 |    | .2 |      |    |     |    |    |
+| **cs** |     |     | .2   |     |    |    |    |    |    |    | 11.2 |    |     |    |    |
+| **np** |     |     | 18.6 |     |    |    |    |    |    |    |      |    |     |    |    |
+| **vm** |     |     | 20.3 | 1.3 |    |    |    |    |    |    |      |    |     |    |    |
+| **pp** |     |     |      |     |    |    |    | .2 |    |    |      | .5 | 2.4 |    |    |
+| **sp** |     |     | .4   |     |    |    |    |    |    |    |      |    |     | .4 |    |
+| **cc** |     |     |      |     |    |    |    | .4 |    |    |      |    |     |    |    |
+| **dn** | .2  |     |      |     |    |    |    |    |    |    |      |    |     |    |    |
+| **zp** |     |     | .5   |     |    |    |    |    |    |    |      |    |     |    |    |
+| **da** |     |     | 1.3  |     |    |    |    |    |    |    |      |    |     |    |    |
+| **nu** |     |     | 1.4  |     |    |    |    |    |    |    |      |    |     |    |    |
+| **un** |     |     | .3   |     |    |    |    |    |    |    |      |    |     |    |    |
+| **p0** |     |     |      |     |    |    |    |    |    |    |      |    |     |    | .3 |
 
+Nota: en la matriz de confusión se omitieron los tags con error menor al 2% por motivo de espacio.
 
 Ejercicio 4
 -----------
-
-Se implemento la clase AddOneNGram, la cual hereda de la clase NGram y agraga en su init el calculo de la longitud
-del vocabulario y se modifica el método cond_prob para que calcule la probabilidad condicional utilizando
-suavizado addone.
-Se modifico train.py para que acepte el modelo addone
-
-entrenar: python scripts/train.py -n <n> [-m <model>] -o <file> 
-
-n: orden del modelo
-
-m: modelo
-
-o: archivo que contiene el modelo
 
 
 Ejercicio 5
 -----------
 
-Se implementaron los métodos de log-probability, cross-entropy y perplejidad en la clase NGram.
-Se escribió un scripts eval.py en el cual se carga un modelo entrenado con el 90% del corpus y 
-lo evalua con el 10% restante. 
-A menor perplejidad mejor es el modelo.
-
-evaluar: python scripts/eval.py -i <file>
-
-i: modelo entrenado
-
-evaluacion del modelo de suavizado addone
-
-| n | Perplejidad |
-|---|-------------|
-| 1 | 1212        |
-| 2 | 3106        |
-| 3 | 15121       |
-| 4 | 22118       |
-
 
 Ejercicio 6
 -----------
 
-Se implemento la clase InterpolatedNGram. si el parametro gamma de esta clase no es dado se calcula utilizando
-datos held-out. Utiliza addone para los unigramas.
-
-evaluacion del modelo de suavizado por interpolacion
-
-| n | Perplejidad |
-|---|-------------|
-| 1 | 1221        |
-| 2 | 394         |
-| 3 | 375         |
-| 4 | 386         |
 
 Ejercicio 7
 -----------
-Se implemento la clase BackOffNGram. Si el parametro de discounting beta no es dado se estima el mejor beta.
-
-evaluacion del modelo de suavizado backoff con discounting
-
-| n | Perplejidad |
-|---|-------------|
-| 1 | 1212        |
-| 2 | 302         |
-| 3 | 285         |
-| 4 | 293         |
 

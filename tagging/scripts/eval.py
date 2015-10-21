@@ -13,7 +13,7 @@ import pickle
 import sys
 
 from corpus.ancora import SimpleAncoraCorpusReader
-
+from collections import defaultdict
 
 def progress(msg, width=None):
     """Ouput the progress of something on the same line."""
@@ -21,6 +21,12 @@ def progress(msg, width=None):
         width = len(msg)
     print('\b' * width + msg, end='')
     sys.stdout.flush()
+
+def truncate(f, n):
+    '''Truncates/pads a float f to n decimal places without rounding'''
+    s = '%.12f' % f
+    i, p, d = s.partition('.')
+    return float('.'.join([i, (d+'0'*n)[:n]]))
 
 
 if __name__ == '__main__':
@@ -37,6 +43,8 @@ if __name__ == '__main__':
     corpus = SimpleAncoraCorpusReader('ancora/ancora-2.0/', files)
     sents = list(corpus.tagged_sents())
 
+    m_conf = defaultdict(dict)
+    error_count = 0
     # tag
     hits, total = 0, 0
     hits_known, total_known = 0, 0
@@ -66,6 +74,13 @@ if __name__ == '__main__':
                 total_known += 1
                 if g_t == m_t:
                     hits_known += 1
+            if g_t != m_t:
+                error_count += 1
+                if g_t in m_conf and m_t in m_conf[g_t]:
+                    m_conf[g_t][m_t] += 1
+                else:
+                    m_conf[g_t][m_t] = 1
+
         acc_know = (float(hits_known) / total_known) * 100
         acc_unknow = (float(hits_unknown) / total_unknown) * 100
 
@@ -86,3 +101,16 @@ if __name__ == '__main__':
 
     print('')
     print('Accuracy_unknown: {:2.2f}%'.format(acc_unknown * 100))
+
+    total = 0.0
+    for (k, v) in m_conf.items():
+        print("\n")
+        print('{}  {}'.format("gold tag:",k))
+        value = v.items()
+        for (t, p) in value:
+            asd = 100 * p/float(error_count)
+            p = truncate(asd, 1)
+            if p > 0.1:
+                total += p
+                print('{} {} {}'.format("wrong tag:",t,p ))
+    print('\n'+str(total))
