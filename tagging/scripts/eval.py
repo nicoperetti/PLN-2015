@@ -107,7 +107,8 @@ if __name__ == '__main__':
     temp = defaultdict(int)
     for k,v in m_conf.items():
         temp[k] = sum(v.values())
-    a = sorted(temp.items(),key = lambda sor: -sor[1])[:10]
+#    a = sorted(temp.items(),key = lambda sor: -sor[1])[:10]
+    a = sorted(temp.items(),key = lambda sor: -sor[1])
     t = [i[0] for i in a]
 
     matrix_c = []
