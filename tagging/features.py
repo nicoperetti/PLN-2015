@@ -73,9 +73,9 @@ class PrevWord(Feature):
         h -- the history.
         """
         f = self.feature
-        if h.i != 0:
+        if h.i > 0:
             h_1 = History(h.sent, h.prev_tags, h.i - 1)
-            result = f(h_1)
+            result = str(f(h_1))
         else:
             result = 'BOS'
         return result

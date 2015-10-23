@@ -11,7 +11,8 @@ Options:
 from docopt import docopt
 import pickle
 import sys
-
+import matplotlib.pyplot as plt
+import numpy as np
 from corpus.ancora import SimpleAncoraCorpusReader
 from collections import defaultdict
 
@@ -102,15 +103,37 @@ if __name__ == '__main__':
     print('')
     print('Accuracy_unknown: {:2.2f}%'.format(acc_unknown * 100))
 
-    total = 0.0
-    for (k, v) in m_conf.items():
-        print("\n")
-        print('{}  {}'.format("gold tag:",k))
-        value = v.items()
-        for (t, p) in value:
-            asd = 100 * p/float(error_count)
-            p = truncate(asd, 1)
-            if p > 0.1:
-                total += p
-                print('{} {} {}'.format("wrong tag:",t,p ))
-    print('\n'+str(total))
+# matriz de confusión
+    temp = defaultdict(int)
+    for k,v in m_conf.items():
+        temp[k] = sum(v.values())
+    a = sorted(temp.items(),key = lambda sor: -sor[1])[:10]
+    t = [i[0] for i in a]
+
+    matrix_c = []
+    for tag_g in t:
+        partial = []
+        for tag_w in t:
+            if tag_w in m_conf[tag_g]:
+                p = 100 * m_conf[tag_g][tag_w]/float(error_count)
+                p = truncate(p, 1)
+            else:
+                p = 0.0
+            partial += [p]
+        matrix_c.append(partial)
+
+# print a matrix
+    print('      ',''.join(['{:6}'.format(item) for item in t]),'\n')
+    for tag, row in zip(t,matrix_c):
+        tag += '   '
+        r = [str(i) for i in row]
+        print(tag, '   '.join(r))
+
+# plot a confusion matrix
+    plt.matshow(matrix_c)
+    plt.title('Confusion matrix')
+    tick_marks = np.arange(len(t))
+    plt.xticks(tick_marks, t)
+    plt.yticks(tick_marks, t)
+    plt.colorbar()
+    plt.show()

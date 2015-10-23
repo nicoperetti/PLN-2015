@@ -25,10 +25,9 @@ class HMM:
         tag -- the tag.
         prev_tags -- tuple with the previous n-1 tags (optional only if n = 1).
         """
-        try:
+        p = 0.0
+        if tag in self.trans[prev_tags]:
             p = self.trans[prev_tags][tag]
-        except KeyError:
-            p = 0.0
         return p
 
     def out_prob(self, word, tag):
@@ -36,10 +35,9 @@ class HMM:
         word -- the word.
         tag -- the tag.
         """
-        try:
+        p = 0.0
+        if word in self.out[tag]:
             p = self.out[tag][word]
-        except KeyError:
-            p = 0.0
         return p
 
     def tag_prob(self, y):
@@ -125,25 +123,6 @@ class ViterbiTagger:
         self._pi[0][ini] = (log2(1.0), [])
         K = list(hmm.tagset())
 
-#        for i, word in enumerate(sent, 1):
-#            pi_ant = self._pi[i-1].items()
-#            for key, (p, dic) in pi_ant:
-#                for v in K:
-#                    e = hmm.out_prob(word, v)
-#                    q = hmm.trans_prob(v, key)
-#                    if q * e != 0:
-#                        tupl = key + (v,)
-#                        tupl = tupl[1:]
-#                        pro = p + log2(q) + log2(e)
-#                        lis = list(dic)
-#                        lis.append(v)
-#                        try:
-#                            j = self._pi[i][tupl][0]
-#                            if j < pro:
-#                                self._pi[i][tupl] = (pro, lis)
-#                        except KeyError:
-#                            self._pi[i][tupl] = (pro, lis)
-
         for i, word in enumerate(sent, 1):
             pi_ant = self._pi[i-1].items()
             for v in K:
@@ -157,11 +136,11 @@ class ViterbiTagger:
                             pro = p + log2(q) + log2(e)
                             lis = list(dic)
                             lis.append(v)
-                            try:
+                            if tupl in self._pi[i]:
                                 j = self._pi[i][tupl][0]
                                 if j < pro:
                                     self._pi[i][tupl] = (pro, lis)
-                            except KeyError:
+                            else:
                                 self._pi[i][tupl] = (pro, lis)
 
         las_pi = self._pi[len(sent)].items()
@@ -171,7 +150,6 @@ class ViterbiTagger:
             if t_p != 0:
                 final += [(prob + log2(t_p), dic)]
         return max(final)[1]
-#        return max([(prob ,dic) for key, (prob ,dic) in las_pi])[1]
 
 
 class MLHMM:
@@ -186,15 +164,15 @@ class MLHMM:
         self.n = n
         tag_frec = defaultdict(int)
         self.out_p = defaultdict(dict)
-        self.tcount_1 = defaultdict(int)
+        self.tcount_1 = defaultdict(int) # unigramas
         word_set = []
         tags_set = []
         for tagged_sent in tagged_sents:
             tags = ["<s>"] * (n-1)
             for word, tag in tagged_sent:
-                try:
+                if word in self.out_p[tag]:
                     self.out_p[tag][word] += 1
-                except KeyError:
+                else:
                     self.out_p[tag][word] = 1
                 tags += [tag]
                 word_set += [word]
@@ -237,13 +215,8 @@ class MLHMM:
         tag -- the tag.
         prev_tags -- tuple with the previous n-1 tags (optional only if n = 1).
         """
-        addone = self.addone
-#        if not prev_tags:
-#            prev_tags = ()
-#        assert len(prev_tags) == self.n - 1
-        if self.n == 1:
-            prev_tags = ()
         assert len(prev_tags) == self.n - 1
+        addone = self.addone
 
         tags = prev_tags + (tag,)
         tags_c = self.tcount(tags)
@@ -265,10 +238,9 @@ class MLHMM:
         else:
             p = float(self.tcount_1[(tag,)])
             if p != 0:
-                try:
+                a = 0
+                if word in self.out_p[tag]:
                     a = self.out_p[tag][word]
-                except KeyError:
-                    a = 0
                 p = a/p
         return p
 
@@ -283,9 +255,8 @@ class MLHMM:
         tags = y + ["</s>"]
         for tag in tags:
             p *= self.trans_prob(tag, tuple(prev_tag))
+            prev_tag = prev_tag + (tag,)
             prev_tag = prev_tag[1:]
-            if self.n > 1:
-                prev_tag += (tag,)
         return p
 
     def prob(self, x, y):

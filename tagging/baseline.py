@@ -11,7 +11,6 @@ class BaselineTagger:
         for tagged_sent in tagged_sents:
             for k, v in tagged_sent:
                 tag_frec[v] += 1
-
                 if k in dict_t and v in dict_t[k]:
                     dict_t[k][v] += 1
                 else:

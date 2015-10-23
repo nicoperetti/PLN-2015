@@ -1,7 +1,7 @@
 """Train a sequence tagger.
 
 Usage:
-  train.py [-m <model>] [-n <n>] -o <file>
+  train.py [-m <model>] [-n <n>] [-c <clf>]-o <file>
   train.py -h | --help
 
 Options:
@@ -10,6 +10,10 @@ Options:
                   addone: Addone
                   memm: MEMM
   -n <n>        Order of the model[only if the model is not base]
+  -c <clf>      Clasf [default: LR]
+                  LR: LogisticRegression
+                  LSVC: LinearSVC
+                  MNB: MultinomialNB
   -o <file>     Output model file.
   -h --help     Show this screen.
 """
@@ -38,9 +42,13 @@ if __name__ == '__main__':
 
     # train the model
     m = opts['-m']
-    if m == 'addone' or m == 'memm':
+    if m == 'addone':
         n = int(opts['-n'])
         model = models[m](n, sents)
+    elif m == 'memm':
+        n = int(opts['-n'])
+        clf = opts['-c']
+        model = models[m](n, sents, clf)
     else:
         model = models[m](sents)
 
