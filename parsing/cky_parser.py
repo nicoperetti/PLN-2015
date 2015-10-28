@@ -9,6 +9,7 @@ class CKYParser:
         grammar -- a binarised NLTK PCFG.
         """
         produc = grammar.productions()
+        self.start = repr(grammar.start())
         self.N = []
         self.lexical_produc = []
         self.nonlexical_produc = []
@@ -50,22 +51,27 @@ class CKYParser:
                         Z = repr(Z)
                         pi_1_ant = self._pi[(i, s)]
                         pi_2_ant = self._pi[(s+1, j)]
+                        print("-----¿?No hace falta pero no pasa los test¿?---")
+                        izq = self._bp[(i, s)]
+                        der = self._bp[(s+1, j)]
+                        print("-------------¿?¿?------------------------------")
                         if Y in pi_1_ant and Z in pi_2_ant:
                             prob = production.logprob()
                             prob += self._pi[(i, s)][Y] + self._pi[(s+1, j)][Z]
                             X = repr(production.lhs())
-                            if X in self._pi[(i,j)]:
-                                if prob > self._pi[(i,j)][X]:
-                                    self._pi[(i,j)][X] = prob
+                            key = (i,j)
+                            izq = self._bp[(i, s)][Y]
+                            der = self._bp[(s+1, j)][Z]
+                            tree = Tree(X, [izq, der])
+                            if X in self._pi[key]:
+                                if prob > self._pi[key][X]:
+                                    self._pi[key][X] = prob
+                                    self._bp[key][X] = tree
                             else:
-                                self._pi[(i,j)][X] = prob
-
-
-        for i in self._pi.items():
-            print(i)
-        print("")
-        for i in self._bp.items():
-            print(i)
-
+                                self._pi[key][X] = prob
+                                self._bp[key][X] = tree
+        lp = self._pi[(1, n)][self.start]
+        t = self._bp[(1, n)][self.start]
+        return (lp, t)
 
 
