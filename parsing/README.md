@@ -1,4 +1,4 @@
-PLN 2015: Práctico 2
+PLN 2015: Práctico 3
 ================================================
 
 
@@ -11,8 +11,6 @@ de largo menor o igual a 20.
 Parsed 1444 sentences
 
 Modelo baseline Flat:
-
-Parsed 1444 sentences
 
 |               | Precision | Recall | F1     |
 |---------------|-----------|--------|--------|
@@ -52,4 +50,12 @@ real-0m12.325s
 user-0m12.134s
 sys-0m0.168s
 
+Ejercicio 2
+-----------
+
+Se implemento en cky_parser.py el algoritmo CKY el cual toma una PCFG y una sentencia
+y retorna el el árbol de parcing más probable.
+
+Ejercicio 3
+-----------
 

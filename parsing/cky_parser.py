@@ -1,6 +1,6 @@
-from nltk.grammar import PCFG
 from collections import defaultdict
 from nltk.tree import Tree
+
 
 class CKYParser:
 
@@ -45,21 +45,21 @@ class CKYParser:
             for i in range(1, (n-l) + 1):
                 j = i + l
                 for production in self.nonlexical_produc:
-                    for s in range(i,j):
+                    for s in range(i, j):
                         Y, Z = production.rhs()
                         Y = repr(Y)
                         Z = repr(Z)
                         pi_1_ant = self._pi[(i, s)]
                         pi_2_ant = self._pi[(s+1, j)]
-                        print("-----¿?No hace falta pero no pasa los test¿?---")
+                        print("---¿?No hace falta pero no pasa los test¿?---")
                         izq = self._bp[(i, s)]
                         der = self._bp[(s+1, j)]
-                        print("-------------¿?¿?------------------------------")
+                        print("-----------¿?¿?------------------------------")
                         if Y in pi_1_ant and Z in pi_2_ant:
                             prob = production.logprob()
                             prob += self._pi[(i, s)][Y] + self._pi[(s+1, j)][Z]
                             X = repr(production.lhs())
-                            key = (i,j)
+                            key = (i, j)
                             izq = self._bp[(i, s)][Y]
                             der = self._bp[(s+1, j)][Z]
                             tree = Tree(X, [izq, der])
@@ -73,5 +73,3 @@ class CKYParser:
         lp = self._pi[(1, n)][self.start]
         t = self._bp[(1, n)][self.start]
         return (lp, t)
-
-
