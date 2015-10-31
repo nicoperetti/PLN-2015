@@ -1,13 +1,15 @@
 from collections import defaultdict
-from parsing.util import unlexicalize
+from parsing.util import unlexicalize, lexicalize
 from nltk.grammar import Nonterminal as N, ProbabilisticProduction, induce_pcfg
 from parsing.cky_parser import CKYParser
+from nltk.tree import Tree
+
 
 class UPCFG:
     """Unlexicalized PCFG.
     """
 
-    def __init__(self, parsed_sents, start = 'S'):
+    def __init__(self, parsed_sents, start='S'):
         """
         parsed_sents -- list of training trees.
         """
@@ -33,11 +35,11 @@ class UPCFG:
             X = key[0]
             Y = key[1]
             if len(key) < 3:
-                p = produc_count[(X,Y)] / float(produc_left_count[X])
+                p = produc_count[(X, Y)] / float(produc_left_count[X])
                 pp = ProbabilisticProduction(N(X), [Y], prob=p)
             else:
                 Z = key[2]
-                p = produc_count[(X,Y,Z)] / float(produc_left_count[X])
+                p = produc_count[(X, Y, Z)] / float(produc_left_count[X])
                 pp = ProbabilisticProduction(N(X), [N(Y), N(Z)], prob=p)
             production += [pp]
         self.grammar = induce_pcfg(N(start), production)
@@ -47,11 +49,18 @@ class UPCFG:
         """
         return self.grammar.productions()
 
-
     def parse(self, tagged_sent):
         """Parse a tagged sentence.
         tagged_sent -- the tagged sentence (a list of pairs (word, tag)).
         """
-
         parser = CKYParser(self.grammar)
-#        parser.parse()
+        sent, pos_tag = zip(*tagged_sent)
+        pos_tag = list(pos_tag)
+        prob, tree = parser.parse(pos_tag)
+        if tree is None:
+            start = self.grammar.start()
+            leaves = [Tree(tag, [word]) for word, tag in tagged_sent]
+            result = Tree(repr(start), leaves)
+        else:
+            result = lexicalize(tree, sent)
+        return result

@@ -51,10 +51,10 @@ class CKYParser:
                         Z = repr(Z)
                         pi_1_ant = self._pi[(i, s)]
                         pi_2_ant = self._pi[(s+1, j)]
-                        print("---¿?No hace falta pero no pasa los test¿?---")
+#                        print("---¿?No hace falta pero no pasa los test¿?---")
                         izq = self._bp[(i, s)]
                         der = self._bp[(s+1, j)]
-                        print("-----------¿?¿?------------------------------")
+#                        print("-----------¿?¿?------------------------------")
                         if Y in pi_1_ant and Z in pi_2_ant:
                             prob = production.logprob()
                             prob += self._pi[(i, s)][Y] + self._pi[(s+1, j)][Z]
@@ -70,6 +70,10 @@ class CKYParser:
                             else:
                                 self._pi[key][X] = prob
                                 self._bp[key][X] = tree
-        lp = self._pi[(1, n)][self.start]
-        t = self._bp[(1, n)][self.start]
+        if self.start in self._pi[(1, n)]:
+            lp = self._pi[(1, n)][self.start]
+            t = self._bp[(1, n)][self.start]
+        else:
+            lp = 0.0
+            t = None
         return (lp, t)
