@@ -58,4 +58,71 @@ y retorna el el árbol de parcing más probable.
 
 Ejercicio 3
 -----------
+Modelo upcfg:
 
+|               | Precision | Recall | F1     |
+|---------------|-----------|--------|--------|
+| **Labeled**   | 73.25%    | 72.95% | 73.10% |
+| **Unlabeled** | 75.36%    | 75.05% | 75.21% |
+
+
+Tiempo de evaluación:
+
+real-6m42.861s
+user-6m31.865s
+sys-0m1.595s
+
+Ejercicio 4
+-----------
+
+Modelo upcfg con markovización horizontal de orden 0:
+
+|               | Precision | Recall | F1     |
+|---------------|-----------|--------|--------|
+| **Labeled**   | 70.25%    | 70.02% | 70.14% |
+| **Unlabeled** | 72.11%    | 71.88% | 72.00% |
+
+Tiempo de evaluación:
+
+real-3m4.347s
+user-3m3.584s
+sys-0m0.264s
+
+Modelo upcfg con markovización horizontal de orden 1:
+
+|               | Precision | Recall | F1     |
+|---------------|-----------|--------|--------|
+| **Labeled**   | 74.62%    | 74.53% | 74.57% |
+| **Unlabeled** | 76.48%    | 76.38% | 76.43% |
+
+Tiempo de evaluación:
+
+real-3m27.898s
+user-3m27.532s
+sys-0m0.284s
+
+Modelo upcfg con markovización horizontal de orden 2:
+
+|               | Precision | Recall | F1     |
+|---------------|-----------|--------|--------|
+| **Labeled**   | 74.89%    | 74.37% | 74.63% |
+| **Unlabeled** | 76.81%    | 76.28% | 76.55% |
+
+Tiempo de evaluación:
+
+real-5m14.277s
+user-5m13.566s
+sys-0m0.472s
+
+Modelo upcfg con markovización horizontal de orden 3:
+
+|               | Precision | Recall | F1     |
+|---------------|-----------|--------|--------|
+| **Labeled**   | 74.08%    | 73.45% | 73.76% |
+| **Unlabeled** | 76.24%    | 75.59% | 75.91% |
+
+Tiempo de evaluación:
+
+real-6m14.863s
+user-6m9.782s
+sys-0m1.124s
