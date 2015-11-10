@@ -99,6 +99,84 @@ class TestCKYParser(TestCase):
         lp2 = log2(1.0 * 0.6 * 1.0 * 0.9 * 1.0 * 1.0 * 0.4 * 0.1 * 1.0)
         self.assertAlmostEqual(lp, lp2)
 
+    def test_parse_ambiguity(self):
+        grammar = PCFG.fromstring(
+            """
+
+                NP -> D Nbar            [1.0]
+                Nbar -> JJ-NN NN        [0.7]
+                Nbar -> JJ NN-NN        [0.3]
+                JJ-NN -> JJ NN          [1.0]
+                NN-NN -> NN NN          [1.0]
+                D -> 'the'              [1.0]
+                JJ -> 'fast'            [1.0]
+                NN -> 'car'             [0.6]
+                NN -> 'mechanic'        [0.4]
+            """)
+
+        parser = CKYParser(grammar)
+
+        lp, t = parser.parse('the fast car mechanic'.split())
+
+        # check chart
+        pi = {
+            (1, 1): {'D': log2(1.0)},
+            (2, 2): {'JJ': log2(1.0)},
+            (3, 3): {'NN': log2(0.6)},
+            (4, 4): {'NN': log2(0.4)},
+
+            (1, 2): {},
+            (2, 3): {'JJ-NN': log2(1.0 * 0.6)},
+            (3, 4): {'NN-NN': log2(0.4 * 0.6)},
+
+            (1, 3): {},
+            (2, 4): {'Nbar': log2(0.7) + log2(1.0 * 0.6) + log2(0.4)},
+
+            (1, 4): {'NP':
+                     log2(1.0) +
+                     log2(1.0) +
+                     log2(0.7) + log2(1.0 * 0.6) + log2(0.4)},
+        }
+        self.assertEqualPi(parser._pi, pi)
+
+        # check partial results
+        bp = {
+            (1, 1): {'D': Tree.fromstring("(D the)")},
+            (2, 2): {'JJ': Tree.fromstring("(JJ fast)")},
+            (3, 3): {'NN': Tree.fromstring("(NN car)")},
+            (4, 4): {'NN': Tree.fromstring("(NN mechanic)")},
+
+            (1, 2): {},
+            (2, 3): {'JJ-NN': Tree.fromstring("(JJ-NN (JJ fast) (NN car))")},
+            (3, 4): {'NN-NN': Tree.fromstring("(NN-NN (NN car) (NN mechanic))")},
+
+            (1, 3): {},
+            (2, 4): {'Nbar': Tree.fromstring(
+                "(Nbar (JJ-NN (JJ fast) (NN car)) (NN mechanic))")},
+
+            (1, 4): {'NP': Tree.fromstring(
+                """(NP
+                    (D the)
+                    (Nbar (JJ-NN (JJ fast) (NN car)) (NN mechanic))
+                    )
+                """)},
+        }
+        self.assertEqual(parser._bp, bp)
+
+        # check tree
+        t2 = Tree.fromstring(
+            """(NP
+               (D the)
+               (Nbar (JJ-NN (JJ fast) (NN car)) (NN mechanic))
+               )
+            """)
+        self.assertEqual(t, t2)
+
+        # check log probability
+        lp2 = log2(1.0) + log2(1.0) + log2(0.7) + log2(1.0 * 0.6) + log2(0.4)
+        self.assertAlmostEqual(lp, lp2)
+
+
     def assertEqualPi(self, pi1, pi2):
         self.assertEqual(set(pi1.keys()), set(pi2.keys()))
 

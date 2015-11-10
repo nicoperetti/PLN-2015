@@ -41,7 +41,7 @@ if __name__ == '__main__':
     mo = opts['-m']
     if mo == 'upcfg':
         n = int(opts['-n'])
-        model = models[mo](corpus.parsed_sents(), n)
+        model = models[mo](corpus.parsed_sents(), horzMarkov=n)
     else:
         model = models[mo](corpus.parsed_sents())
 
