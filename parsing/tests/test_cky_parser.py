@@ -176,6 +176,37 @@ class TestCKYParser(TestCase):
         lp2 = log2(1.0) + log2(1.0) + log2(0.7) + log2(1.0 * 0.6) + log2(0.4)
         self.assertAlmostEqual(lp, lp2)
 
+    def test_parse_with_unary(self):
+        grammar = PCFG.fromstring(
+            """
+                Sbar -> S               [1.0]
+                S -> NP VPbar           [1.0]
+                NP -> N Noun            [0.6]
+                NP -> Noun Adj          [0.4]
+                VPbar -> VP             [1.0]
+                VP -> Verb NP           [1.0]
+                N -> Z                  [1.0]
+                Z -> Det                [1.0]
+                Det -> 'el'             [1.0]
+                Noun -> 'gato'          [0.9]
+                Noun -> 'pescado'       [0.1]
+                Verb -> 'come'          [1.0]
+                Adj -> 'crudo'          [1.0]
+            """)
+
+        parser = CKYParser(grammar)
+
+        lp, t = parser.parse('el gato come pescado crudo'.split())
+
+        t2 = Tree.fromstring(
+            """(Sbar (S
+               (NP (N (Z (Det el))) (Noun gato))
+               (VPbar (VP (Verb come) (NP (Noun pescado) (Adj crudo))))
+               )
+               )
+            """)
+        self.assertEqual(t, t2)
+
 
     def assertEqualPi(self, pi1, pi2):
         self.assertEqual(set(pi1.keys()), set(pi2.keys()))

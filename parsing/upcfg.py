@@ -9,19 +9,19 @@ class UPCFG:
     """Unlexicalized PCFG.
     """
 
-    def __init__(self, parsed_sents, horzMarkov=None, start='sentence'):
+    def __init__(self, parsed_sents, horzMarkov=None, unary=False, start='sentence'):
         """
         parsed_sents -- list of training trees.
         n-- horizontal markovization order
         """
         produc_count = defaultdict(int)
         produc_left_count = defaultdict(int)
-
         for parsed_sent in parsed_sents:
             uparsed_sent = parsed_sent.copy(deep=True)
             uparsed_sent = unlexicalize(uparsed_sent)
             uparsed_sent.chomsky_normal_form(horzMarkov=horzMarkov)
-            uparsed_sent.collapse_unary(collapsePOS=True, collapseRoot=True)
+            if not unary:
+                uparsed_sent.collapse_unary(collapsePOS=True, collapseRoot=True)
             prod = uparsed_sent.productions()
             for p in prod:
                 produc_count[p] += 1

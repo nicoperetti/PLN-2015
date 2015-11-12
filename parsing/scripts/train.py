@@ -1,18 +1,19 @@
 """Train a parser.
 
 Usage:
-  train.py [-m <model>] [-n <n>] -o <file>
+  train.py [-m <model>] [-n <n>] [-u <unary>] -o <file>
   train.py -h | --help
 
 Options:
-  -m <model>    Model to use [default: flat]:
-                  flat: Flat trees
-                  rbranch: Right branching trees
-                  lbranch: Left branching trees
-                  upcfg: unlexicalized PCFG
-  -n <n>        Order of the markovization model upcfg
-  -o <file>     Output model file.
-  -h --help     Show this screen.
+  -m <model>        Model to use [default: flat]:
+                      flat: Flat trees
+                      rbranch: Right branching trees
+                      lbranch: Left branching trees
+                      upcfg: unlexicalized PCFG
+  -n <n>            Order of the markovization model upcfg
+  -u <unary>        True if acept unary rules[default: False]
+  -o <file>         Output model file.
+  -h --help         Show this screen.
 """
 from docopt import docopt
 import pickle
@@ -40,8 +41,14 @@ if __name__ == '__main__':
     print('Training model...')
     mo = opts['-m']
     if mo == 'upcfg':
-        n = int(opts['-n'])
-        model = models[mo](corpus.parsed_sents(), horzMarkov=n)
+        n = opts['-n']
+        if n is not None:
+            n = int(n)
+        unary = opts['-u']
+        if unary == 'False':
+            model = models[mo](corpus.parsed_sents(), horzMarkov=n)
+        else:
+            model = models[mo](corpus.parsed_sents(), horzMarkov=n, unary=True)
     else:
         model = models[mo](corpus.parsed_sents())
 

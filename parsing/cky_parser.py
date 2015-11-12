@@ -12,14 +12,29 @@ class CKYParser:
         self.start = repr(grammar.start())
         self.lexical_produc = defaultdict(list)
         self.nonlexical_produc = defaultdict(list)
+        self.nonlexical_unary_produc = defaultdict(list)
+        self.unary = False
 
         for prod in produc:
             if prod.is_lexical():
                 x_i = prod.rhs()[0]
                 self.lexical_produc[x_i].append(prod)
             else:
-                Y, Z = self.get_param(prod, 'right')
-                self.nonlexical_produc[(Y, Z)].append(prod)
+                if self.is_unary(prod):
+                    Y = str(prod.rhs()[0])
+                    self.nonlexical_unary_produc[Y].append(prod)
+                else:
+                    Y, Z = self.get_param(prod, 'right')
+                    self.nonlexical_produc[(Y, Z)].append(prod)
+        if len(self.nonlexical_unary_produc) > 0:
+            self.unary = True
+            self.nonlexical_unary_produc = dict(self.nonlexical_unary_produc)
+
+    def is_unary(self, production):
+        result = False
+        if len(production.rhs()) == 1:
+            result = True
+        return result
 
     def get_param(self, production, option):
         if option == 'left':
@@ -53,6 +68,27 @@ class CKYParser:
                 tree = Tree(non_terminal, [w])
                 self._bp[key][non_terminal] = tree
 
+            # handle unary
+            if self.unary:
+                added = True
+                while added:
+                    added = False
+                    pi_ant = self._pi[(i,i)]
+                    bp_ant = self._bp[(i,i)]
+                    dict_pi_ant = dict(pi_ant)
+                    for B, prob in dict_pi_ant.items():
+                        if B in self.nonlexical_unary_produc:
+                            prod = self.nonlexical_unary_produc[B]
+                            for production in prod:
+                                A = self.get_param(production, 'left')
+                                p = prob + self.get_param(production, 'prob')
+                                if (A not in dict_pi_ant) or (p > dict_pi_ant[A]):
+                                    pi_ant[A] = p
+                                    leave = bp_ant[B]
+                                    tree = Tree(A, [leave])
+                                    bp_ant[A] = tree
+                                    added = True
+
         # cky
         for l in range(1, n):
             for i in range(1, (n-l) + 1):
@@ -79,6 +115,27 @@ class CKYParser:
                                     self._pi[key][X] = prob
                                     tree = Tree(X, [izq[Y], der[Z]])
                                     self._bp[key][X] = tree
+                # handle unary
+                if self.unary:
+                    added = True
+                    while added:
+                        added = False
+                        pi_ant = self._pi[key]
+                        bp_ant = self._bp[key]
+                        dict_pi_ant = dict(pi_ant)
+                        for B, prob in dict_pi_ant.items():
+                            if B in self.nonlexical_unary_produc:
+                                prod = self.nonlexical_unary_produc[B]
+                                for production in prod:
+                                    A = self.get_param(production, 'left')
+                                    p = prob + self.get_param(production, 'prob')
+                                    if (A not in dict_pi_ant) or (p > dict_pi_ant[A]):
+                                        pi_ant[A] = p
+                                        leave = bp_ant[B]
+                                        tree = Tree(A, [leave])
+                                        bp_ant[A] = tree
+                                        added = True
+
         if self.start in self._pi[(1, n)]:
             lp = self._pi[(1, n)][self.start]
             t = self._bp[(1, n)][self.start]

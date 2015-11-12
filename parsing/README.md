@@ -1,6 +1,25 @@
 PLN 2015: Práctico 3
 ================================================
 
+Entrenar y evaluar
+------------------
+para entrenar:
+
+```
+python3 parsing/scripts/train.py [-m <model>] [-n <n>] [-u <unary>] -o <file>
+```
+model: flat | rbranch | lbranch | upcfg. flat por default
+n: orden markovización horizontal.
+unary: True si se aceptan producciones unarias. False por default
+file: modelo
+
+para evaluar::
+```
+python3 parsing/scripts/eval.py -i <file> [-m <m>] [-n <n>]
+```
+file: model
+m: sentencias con largo mayor i igual a m
+n: cantidad de sentencias a evaluar
 
 Ejercicio 1
 -----------
@@ -55,6 +74,9 @@ Ejercicio 2
 
 Se implemento en cky_parser.py el algoritmo CKY el cual toma una PCFG y una sentencia
 y retorna el el árbol de parcing más probable.
+
+Se implemento un test con ambiguedad, la sentencia es "the fast car mechanic", la 
+cual tiene dos posibles formas de parsing.
 
 Ejercicio 3
 -----------
@@ -126,3 +148,11 @@ Tiempo de evaluación:
 real-6m14.863s
 user-6m9.782s
 sys-0m1.124s
+
+Ejercicio 5
+-----------
+
+Se implemento la contemplación de producciones unarias para el algoritmo CKY,
+aunque en principio andaría ya que se escribió un test y lo pasa, pero tarda muy
+mucho en evaluar, asique queda abierta la optimización del CKY para con producciones
+unarias.
