@@ -73,8 +73,8 @@ class CKYParser:
                 added = True
                 while added:
                     added = False
-                    pi_ant = self._pi[(i,i)]
-                    bp_ant = self._bp[(i,i)]
+                    pi_ant = self._pi[(i, i)]
+                    bp_ant = self._bp[(i, i)]
                     dict_pi_ant = dict(pi_ant)
                     for B, prob in dict_pi_ant.items():
                         if B in self.nonlexical_unary_produc:

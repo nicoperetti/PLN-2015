@@ -1,6 +1,5 @@
-from collections import defaultdict
 from parsing.util import unlexicalize, lexicalize
-from nltk.grammar import Nonterminal as N, ProbabilisticProduction, PCFG
+from nltk.grammar import Nonterminal as N, induce_pcfg
 from parsing.cky_parser import CKYParser
 from nltk.tree import Tree
 
@@ -14,8 +13,7 @@ class UPCFG:
         parsed_sents -- list of training trees.
         n-- horizontal markovization order
         """
-        produc_count = defaultdict(int)
-        produc_left_count = defaultdict(int)
+        production = []
         for parsed_sent in parsed_sents:
             uparsed_sent = parsed_sent.copy(deep=True)
             uparsed_sent = unlexicalize(uparsed_sent)
@@ -23,13 +21,8 @@ class UPCFG:
             if not unary:
                 uparsed_sent.collapse_unary(collapsePOS=True, collapseRoot=True)
             prod = uparsed_sent.productions()
-            for p in prod:
-                produc_count[p] += 1
-                produc_left_count[p.lhs()] += 1
-        production = [ProbabilisticProduction(p.lhs(), p.rhs(),
-                      prob=produc_count[p]/float(produc_left_count[p.lhs()]))
-                      for p in produc_count]
-        self.grammar = PCFG(N(start), production)
+            production += prod
+        self.grammar = induce_pcfg(N(start), production)
         self.parser = CKYParser(self.grammar)
 
     def productions(self):
