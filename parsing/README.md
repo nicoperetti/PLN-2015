@@ -8,17 +8,24 @@ para entrenar:
 ```
 python3 parsing/scripts/train.py [-m <model>] [-n <n>] [-u <unary>] -o <file>
 ```
+
 model: flat | rbranch | lbranch | upcfg. flat por default
+
 n: orden markovización horizontal.
+
 unary: True si se aceptan producciones unarias. False por default
+
 file: modelo
 
 para evaluar::
 ```
 python3 parsing/scripts/eval.py -i <file> [-m <m>] [-n <n>]
 ```
+
 file: model
+
 m: sentencias con largo mayor i igual a m
+
 n: cantidad de sentencias a evaluar
 
 Ejercicio 1
