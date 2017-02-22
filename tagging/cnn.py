@@ -24,12 +24,12 @@ class CnnTagger:
 
     def load_model(self):
         # load json and create model
-        json_file = open('model_2_simple_reg.json', 'r')
+        json_file = open('models/cnn_model_5h.json', 'r')
         loaded_model_json = json_file.read()
         json_file.close()
         loaded_model = model_from_json(loaded_model_json)
         # load weights into new model
-        loaded_model.load_weights("model_2_simple_reg.h5")
+        loaded_model.load_weights("models/cnn_weights_5h.h5")
         print("Loaded model from disk")
         loaded_model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
         return loaded_model
@@ -42,7 +42,12 @@ class CnnTagger:
             for tag in self.tagset:
                 if i == 0:
                     x.append(0.0)
+                    x.append(0.0)
+                elif i == 1:
+                    x.append(0.0)
+                    x.append(self.lexicon.out_prob(sent[i-1], tag))
                 else:
+                    x.append(self.lexicon.out_prob(sent[i-2], tag))
                     x.append(self.lexicon.out_prob(sent[i-1], tag))
                 x.append(self.lexicon.out_prob(word, tag))
                 if i == n:

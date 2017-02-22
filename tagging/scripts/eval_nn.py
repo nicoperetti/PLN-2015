@@ -19,6 +19,7 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.models import model_from_json
 from tagging.cnn import CnnTagger
+import random
 
 
 def progress(msg, width=None):
@@ -45,10 +46,22 @@ if __name__ == '__main__':
     f.close()
 
     # load the data
-    files = '3LB-CAST/.*\.tbf\.xml'
-    # files = 'CESS-CAST-(A|AA|P)/.*\.tbf\.xml'
+    files = 'CESS-CAST-(A|AA|P)/.*\.tbf\.xml'
     corpus = SimpleAncoraCorpusReader('ancora/ancora-2.0/', files)
-    sents = list(corpus.tagged_sents())
+    sents1 = list(corpus.tagged_sents())
+
+    files = '3LB-CAST/.*\.tbf\.xml'
+    corpus = SimpleAncoraCorpusReader('ancora/ancora-2.0/', files)
+    sents2 = list(corpus.tagged_sents())    
+    sents = sents1 + sents2
+    n = len(sents)
+    print(n)
+    random.seed(7)
+    random.shuffle(sents)
+
+    split = int(n*.9)
+    # train_sents = sents[:split]
+    test_sents = sents[split:]
 
     model = CnnTagger(lexicon)
 
@@ -56,9 +69,9 @@ if __name__ == '__main__':
     hits, total = 0, 0
     hits_known, total_known = 0, 0
     hits_unknown, total_unknown = 0, 0
-    n = len(sents)
-    # print(n)
-    for i, sent in enumerate(sents):
+    n = len(test_sents)
+    print(n)
+    for i, sent in enumerate(test_sents):
         try:
             word_sent, gold_tag_sent = zip(*sent)
             # print(gold_tag_sent)
