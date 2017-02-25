@@ -71,55 +71,53 @@ if __name__ == '__main__':
     hits_unknown, total_unknown = 0, 0
     n = len(test_sents)
     print(n)
-    for i, sent in enumerate(test_sents):
+    for i, sent in enumerate(test_sents, 1):
         try:
             word_sent, gold_tag_sent = zip(*sent)
-            # print(gold_tag_sent)
+
             model_tag_sent = model.tag(word_sent)
-            # print(model_tag_sent)
+
             assert len(model_tag_sent) == len(gold_tag_sent), i
             # global score
             hits_sent = [m == g for m, g in zip(model_tag_sent, gold_tag_sent)]
             hits += sum(hits_sent)
             total += len(sent)
             acc = (float(hits) / total) * 100
-            # print(hits)
-            # print(total)
-            # raise
-    # acuracy palabras conocidas y desconocidas
-            # for j, word in enumerate(word_sent):
-            #     g_t = gold_tag_sent[j]
-            #     m_t = model_tag_sent[j]
-            #     if model.unknown(word):
-            #         total_unknown += 1
-            #         if g_t == m_t:
-            #             hits_unknown += 1
-            #     else:
-            #         total_known += 1
-            #         if g_t == m_t:
-            #             hits_known += 1
 
-            # acc_know = (float(hits_known) / total_known) * 100
-            # acc_unknow = (float(hits_unknown) / total_unknown) * 100
+    # acuracy palabras conocidas y desconocidas
+            for j, word in enumerate(word_sent):
+                g_t = gold_tag_sent[j]
+                m_t = model_tag_sent[j]
+                if lexicon.unknown(word):
+                    total_unknown += 1
+                    if g_t == m_t:
+                        hits_unknown += 1
+                else:
+                    total_known += 1
+                    if g_t == m_t:
+                        hits_known += 1
+
+            acc_know = (float(hits_known) / total_known) * 100
+            acc_unknow = (float(hits_unknown) / total_unknown) * 100
 
     # progress
-            # por = float(i) * 100 / n
-            # progress('{:3.1f}% ({:2.2f}%/{:2.2f}%/{:2.2f}%)'.format(por, acc, acc_know, acc_unknow))
-
             por = float(i) * 100 / n
-            progress('{:3.1f}% ({:2.2f}%)'.format(por, acc))
+            progress('{:3.1f}% ({:2.2f}%/{:2.2f}%/{:2.2f}%)'.format(por, acc, acc_know, acc_unknow))
+
+            # por = float(i) * 100 / n
+            # progress('{:3.1f}% ({:2.2f}%)'.format(por, acc))
         except:
             pass
 
     acc = float(hits) / total
-    # acc_known = float(hits_known) / total_known
-    # acc_unknown = float(hits_unknown) / total_unknown
+    acc_known = float(hits_known) / total_known
+    acc_unknown = float(hits_unknown) / total_unknown
 
     print('')
     print('Accuracy: {:2.2f}%'.format(acc * 100))
 
-    # print('')
-    # print('Accuracy_known: {:2.2f}%'.format(acc_known * 100))
+    print('')
+    print('Accuracy_known: {:2.2f}%'.format(acc_known * 100))
 
-    # print('')
-    # print('Accuracy_unknown: {:2.2f}%'.format(acc_unknown * 100))
+    print('')
+    print('Accuracy_unknown: {:2.2f}%'.format(acc_unknown * 100))

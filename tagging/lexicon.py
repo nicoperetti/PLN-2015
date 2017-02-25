@@ -59,7 +59,7 @@ class Lexicon:
         tag -- the tag.
         """
         if self.unknown(word):
-            p = 1/float(self.wordset_len)
+            p = 0.0
         else:
             p = float(self.tcount[(tag,)])
             if p != 0:

@@ -23,12 +23,7 @@ def preprocess(model, sents):
 			for tag in tagset:
 				if i == 0:
 					x.append(0.0)
-					x.append(0.0)
-				elif i == 1:
-					x.append(0.0)
-					x.append(model.out_prob(sent[i-1][0], tag))
 				else:
-					x.append(model.out_prob(sent[i-2][0], tag))
 					x.append(model.out_prob(sent[i-1][0], tag))
 				x.append(model.out_prob(word, tag))
 				if i == n:
@@ -81,8 +76,8 @@ if __name__ == '__main__':
 	# y_test_data = np.float32(y_test_data)
 
 	#save values
-	np.save('tagging/features/X_train.feat', x_train_data)
-	np.save('tagging/features/Y_train.feat', y_train_data)
+	np.save('tagging/features/X_train_3-4.feat', x_train_data)
+	np.save('tagging/features/Y_train_3-4.feat', y_train_data)
 	# np.save('tagging/features/X_test.feat', x_test_data)
 	# np.save('tagging/features/Y_test.feat', y_test_data)
 
