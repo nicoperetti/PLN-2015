@@ -11,13 +11,10 @@ Options:
 from docopt import docopt
 import pickle
 import sys
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
 from corpus.ancora import SimpleAncoraCorpusReader
 from collections import defaultdict
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.models import model_from_json
 from tagging.cnn import CnnTagger
 import random
 
@@ -55,22 +52,21 @@ if __name__ == '__main__':
     sents2 = list(corpus.tagged_sents())    
     sents = sents1 + sents2
     n = len(sents)
-    print(n)
+
     random.seed(7)
     random.shuffle(sents)
 
     split = int(n*.9)
-    # train_sents = sents[:split]
     test_sents = sents[split:]
 
     model = CnnTagger(lexicon)
 
-    # tag
+    m_conf = defaultdict(dict)
+    error_count = 0
     hits, total = 0, 0
     hits_known, total_known = 0, 0
     hits_unknown, total_unknown = 0, 0
     n = len(test_sents)
-    print(n)
     for i, sent in enumerate(test_sents, 1):
         try:
             word_sent, gold_tag_sent = zip(*sent)
@@ -97,15 +93,19 @@ if __name__ == '__main__':
                     if g_t == m_t:
                         hits_known += 1
 
+                if g_t != m_t:
+                    error_count += 1
+                    if g_t in m_conf and m_t in m_conf[g_t]:
+                        m_conf[g_t][m_t] += 1
+                    else:
+                        m_conf[g_t][m_t] = 1
+
             acc_know = (float(hits_known) / total_known) * 100
             acc_unknow = (float(hits_unknown) / total_unknown) * 100
 
     # progress
             por = float(i) * 100 / n
             progress('{:3.1f}% ({:2.2f}%/{:2.2f}%/{:2.2f}%)'.format(por, acc, acc_know, acc_unknow))
-
-            # por = float(i) * 100 / n
-            # progress('{:3.1f}% ({:2.2f}%)'.format(por, acc))
         except:
             pass
 
@@ -121,3 +121,40 @@ if __name__ == '__main__':
 
     print('')
     print('Accuracy_unknown: {:2.2f}%'.format(acc_unknown * 100))
+
+# matriz de confusión
+    temp = defaultdict(int)
+    for k, v in m_conf.items():
+        temp[k] = sum(v.values())
+    a = sorted(temp.items(),key = lambda sor: -sor[1])[:10]
+    # a = sorted(temp.items(),key = lambda sor: -sor[1])
+    t = [i[0] for i in a]
+
+    matrix_c = []
+    for tag_g in t:
+        partial = []
+        for tag_w in t:
+            if tag_w in m_conf[tag_g]:
+                p = 100 * m_conf[tag_g][tag_w]/float(error_count)
+                p = truncate(p, 1)
+            else:
+                p = 0.0
+            partial += [p]
+        matrix_c.append(partial)
+
+
+# print a matrix
+    # print('      ',''.join(['{:6}'.format(item) for item in t]),'\n')
+    # for tag, row in zip(t,matrix_c):
+    #     tag += '   '
+    #     r = [str(i) for i in row]
+    #     print(tag, '   '.join(r))
+
+# plot a confusion matrix
+    # plt.matshow(matrix_c)
+    # plt.title('Confusion matrix')
+    # tick_marks = np.arange(len(t))
+    # plt.xticks(tick_marks, t)
+    # plt.yticks(tick_marks, t)
+    # plt.colorbar()
+    # plt.show()

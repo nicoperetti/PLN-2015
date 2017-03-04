@@ -2,4 +2,6 @@ flake8
 nose
 docopt
 nltk
+theano
+keras
 -e .  # install our code in editing mode

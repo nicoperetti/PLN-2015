@@ -43,10 +43,7 @@ class Lexicon:
         """Check if a word is unknown for the model.
         w -- the word.
         """
-        result = True
-        if w in self.word_set:
-            result = False
-        return result
+        return not w in self.word_set
 
     def tagset(self):
         """Returns the set of tags.
@@ -58,13 +55,9 @@ class Lexicon:
         word -- the word.
         tag -- the tag.
         """
-        if self.unknown(word):
+        p = 0.0
+        try:
+            p = self.t_w_out_p[tag][word]/float(self.tcount[(tag,)])
+        except:
             p = 0.0
-        else:
-            p = float(self.tcount[(tag,)])
-            if p != 0:
-                a = 0
-                if word in self.t_w_out_p[tag]:
-                    a = self.t_w_out_p[tag][word]
-                p = a/p
         return p

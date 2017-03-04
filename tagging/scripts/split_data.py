@@ -1,9 +1,19 @@
+"""Evaulate a tagger.
+
+Usage:
+  split_data.py -i <file>
+  split_data.py -h | --help
+
+Options:
+  -i <file>     Lexicon.
+  -h --help     Show this screen.
+"""
+from docopt import docopt
 import pickle
 from collections import defaultdict
 from corpus.ancora import SimpleAncoraCorpusReader
 import numpy as np
 import random
-
 
 
 def preprocess(model, sents):
@@ -37,9 +47,12 @@ def preprocess(model, sents):
 
 
 if __name__ == '__main__':
+	opts = docopt(__doc__)
+	
 
 	# load thel lexicon
-	filename = 'models/Lexicon1'
+	filename = opts['-i']
+	# filename = 'models/Lexicon1'
 	f = open(filename, 'rb')
 	model = pickle.load(f)
 	f.close()
@@ -54,31 +67,20 @@ if __name__ == '__main__':
 	sents2 = list(corpus.tagged_sents())	
 	sents = sents1 + sents2
 	n = len(sents)
-	print(n)
 
 	random.seed(7)
 	random.shuffle(sents)
 
 	split = int(n*.9)
 	train_sent = sents[:split]
-	# test_sent = sents[split:]
 	x_train_data, y_train_data = preprocess(model, train_sent)
-	# x_test_data, y_test_data = preprocess(model, sents[split:])
 
 	assert len(x_train_data) == len(y_train_data)
-	# assert len(x_test_data) == len(y_test_data)
-	print(len(x_train_data))
-	# print(len(x_test_data))
+
 
 	x_train_data = np.float32(x_train_data)
 	y_train_data = np.float32(y_train_data)
-	# x_test_data = np.float32(x_test_data)
-	# y_test_data = np.float32(y_test_data)
 
 	#save values
-	np.save('tagging/features/X_train_3-4.feat', x_train_data)
-	np.save('tagging/features/Y_train_3-4.feat', y_train_data)
-	# np.save('tagging/features/X_test.feat', x_test_data)
-	# np.save('tagging/features/Y_test.feat', y_test_data)
-
-
+	np.save('tagging/features/X_train.feat', x_train_data)
+	np.save('tagging/features/Y_train.feat', y_train_data)

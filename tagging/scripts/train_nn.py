@@ -15,12 +15,8 @@ import os
 if __name__ == '__main__':
 
 	# load features
-	X_train = np.load('tagging/features/X_train_3-4.feat.npy')
-	Y_train = np.load('tagging/features/Y_train_3-4.feat.npy')
-
-	print(X_train.shape)
-	print(Y_train.shape)
-	
+	X_train = np.load('tagging/features/X_train.feat.npy')
+	Y_train = np.load('tagging/features/Y_train.feat.npy')
 
 	# fix random seed for reproducibility
 	seed = 7

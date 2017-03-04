@@ -16,7 +16,6 @@ class CnnTagger:
         """
         self.lexicon = lexicon
         self.tagset = self.lexicon.tagset()
-        print(self.tagset)
         self.model = self.load_model()
         self.tagset_d = {}
         for i, tag in enumerate(self.tagset):
@@ -24,12 +23,12 @@ class CnnTagger:
 
     def load_model(self):
         # load json and create model
-        json_file = open('tagging/models/cnn_model_2.json', 'r')
+        json_file = open('tagging/models/cnn_model_1.json', 'r')
         loaded_model_json = json_file.read()
         json_file.close()
         loaded_model = model_from_json(loaded_model_json)
         # load weights into new model
-        loaded_model.load_weights("tagging/models/cnn_weights_2.h5")
+        loaded_model.load_weights("tagging/models/cnn_weights_1.h5")
         print("Loaded model from disk")
         loaded_model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
         return loaded_model
